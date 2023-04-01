@@ -6,6 +6,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	estructuras "github.com/EstuardoSon/P2_MIA_202003894/Estructuras"
 )
 
 type error interface {
@@ -61,22 +63,6 @@ func obtenerPosEspacio(cadena string) int {
 	return len(cadena)
 }
 
-// Obtener el nombre del disco de la direccion
-func (analizador *Analizador) obtenerNombre(cadena *string) string {
-	pos := strings.LastIndex(*cadena, "/")
-
-	if pos != -1 {
-		return (*cadena)[pos+1:]
-	}
-	return ""
-}
-
-// Obtener el nombre del archivo y separarlo de los ficheros
-func (analizador *Analizador) obtenerDatosPath(fichero string, nombre *string, tamanio int) {
-	analizador.obtenerDatoParamC(&fichero, tamanio)
-	*nombre = analizador.obtenerNombre(&fichero)
-}
-
 // Verificar si la cadena es un comentario
 func (analizador *Analizador) verificarComentario(cadena string) bool {
 	if cadena[0] == '#' {
@@ -128,20 +114,20 @@ func (analizador *Analizador) obtenerDatoParamN(parametro *int, tamanio int) {
 	analizador.Comando = strings.TrimSpace(analizador.Comando[posEspacio:])
 }
 
-func (analizador *Analizador) Analizar() {
+func (analizador *Analizador) Analizar() string {
 	if analizador.verificarComentario(strings.TrimSpace(analizador.Comando)) {
-		return
+		return strings.TrimSpace(analizador.Comando)
 	}
 
 	nInst, err := analizador.recoInstrucion(strings.ToLower(analizador.Comando))
 
 	if err != nil {
-		fmt.Println(err)
+		return err.Error()
 	} else {
 		fmt.Println(analizador.Comando)
 		if nInst == 1 { //Mkdisk
 			analizador.Comando = strings.TrimSpace(analizador.Comando[6:])
-			var size int
+			size := -1
 			var fit, unit, path string
 
 			for len(analizador.Comando) > 0 {
@@ -156,12 +142,11 @@ func (analizador *Analizador) Analizar() {
 				} else if len(analizador.Comando) >= 6 && strings.ToLower(analizador.Comando[:6]) == ">path=" {
 					analizador.obtenerDatoParamC(&path, 6)
 				} else {
-					fmt.Println(analizador.Comando)
-					fmt.Println("Ingreso un parametro no reconocido")
-					return
+					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
+
 			}
-			fmt.Printf("MKDISK %d %s %s %s \n", size, fit, unit, path)
+			return estructuras.Mkdisk(size, path, fit, unit)
 		} else if nInst == 2 { //Rmdisk
 			analizador.Comando = strings.TrimSpace(analizador.Comando[6:])
 			var path string
@@ -172,12 +157,10 @@ func (analizador *Analizador) Analizar() {
 				} else if len(analizador.Comando) >= 6 && strings.ToLower(analizador.Comando[:6]) == ">path=" {
 					analizador.obtenerDatoParamC(&path, 6)
 				} else {
-					fmt.Println(analizador.Comando)
-					fmt.Println("Ingreso un parametro no reconocido")
-					return
+					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			fmt.Printf("RMDISK %s \n", path)
+			return estructuras.Rmdisk(path)
 		} else if nInst == 3 { //Fdisk
 			analizador.Comando = strings.TrimSpace(analizador.Comando[5:])
 			var size int
@@ -199,9 +182,7 @@ func (analizador *Analizador) Analizar() {
 				} else if len(analizador.Comando) >= 6 && strings.ToLower(analizador.Comando[:6]) == ">type=" {
 					analizador.obtenerDatoParamS(&tipo, 6)
 				} else {
-					fmt.Println(analizador.Comando)
-					fmt.Println("Ingreso un parametro no reconocido")
-					return
+					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
 			fmt.Printf("FDISK %d %s %s %s %s %s\n", size, tipo, unit, path, fit, name)
@@ -219,12 +200,10 @@ func (analizador *Analizador) Analizar() {
 				} else if len(analizador.Comando) >= 4 && strings.ToLower(analizador.Comando[:4]) == ">id=" {
 					analizador.obtenerDatoParamS(&id, 4)
 				} else {
-					fmt.Println(analizador.Comando)
-					fmt.Println("Ingreso un parametro no reconocido")
-					return
+					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			fmt.Printf("MOUNT %s %s %s \n", path, name, id)
+			return fmt.Sprintf("MOUNT %s %s %s \n", path, name, id)
 		} else if nInst == 5 { //Mkfs
 			analizador.Comando = strings.TrimSpace(analizador.Comando[4:])
 			var tipo, id string
@@ -237,12 +216,10 @@ func (analizador *Analizador) Analizar() {
 				} else if len(analizador.Comando) >= 4 && strings.ToLower(analizador.Comando[:4]) == ">id=" {
 					analizador.obtenerDatoParamS(&id, 4)
 				} else {
-					fmt.Println(analizador.Comando)
-					fmt.Println("Ingreso un parametro no reconocido")
-					return
+					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			fmt.Printf("MKFS %s %s \n", tipo, id)
+			return fmt.Sprintf("MKFS %s %s \n", tipo, id)
 		} else if nInst == 6 { //Login
 			analizador.Comando = strings.TrimSpace(analizador.Comando[5:])
 			var user, pwd, id string
@@ -257,21 +234,17 @@ func (analizador *Analizador) Analizar() {
 				} else if len(analizador.Comando) >= 4 && strings.ToLower(analizador.Comando[:4]) == ">id=" {
 					analizador.obtenerDatoParamS(&id, 4)
 				} else {
-					fmt.Println(analizador.Comando)
-					fmt.Println("Ingreso un parametro no reconocido")
-					return
+					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			fmt.Printf("LOGIN %s %s %s \n", user, pwd, id)
+			return fmt.Sprintf("LOGIN %s %s %s \n", user, pwd, id)
 		} else if nInst == 7 { //Logout
 			analizador.Comando = strings.TrimSpace(analizador.Comando[6:])
 
 			if analizador.Comando != "" {
-				fmt.Println(analizador.Comando)
-				fmt.Println("Ingreso un parametro no reconocido")
-				return
+				return analizador.Comando + " Ingreso un parametro no reconocido"
 			}
-			fmt.Printf("LOGOUT\n")
+			return fmt.Sprintf("LOGOUT\n")
 		} else if nInst == 8 { //Mkgrp
 			analizador.Comando = strings.TrimSpace(analizador.Comando[5:])
 			var name string
@@ -282,12 +255,10 @@ func (analizador *Analizador) Analizar() {
 				} else if len(analizador.Comando) >= 6 && strings.ToLower(analizador.Comando[:6]) == ">name=" {
 					analizador.obtenerDatoParamC(&name, 6)
 				} else {
-					fmt.Println(analizador.Comando)
-					fmt.Println("Ingreso un parametro no reconocido")
-					return
+					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			fmt.Printf("MKGRP %s \n", name)
+			return fmt.Sprintf("MKGRP %s \n", name)
 		} else if nInst == 9 { //Rmgrp
 			analizador.Comando = strings.TrimSpace(analizador.Comando[5:])
 			var name string
@@ -298,12 +269,10 @@ func (analizador *Analizador) Analizar() {
 				} else if len(analizador.Comando) >= 6 && strings.ToLower(analizador.Comando[:6]) == ">name=" {
 					analizador.obtenerDatoParamC(&name, 6)
 				} else {
-					fmt.Println(analizador.Comando)
-					fmt.Println("Ingreso un parametro no reconocido")
-					return
+					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			fmt.Printf("RMGRP %s \n", name)
+			return fmt.Sprintf("RMGRP %s \n", name)
 		} else if nInst == 10 { //Mkusr
 			analizador.Comando = strings.TrimSpace(analizador.Comando[5:])
 			var user, pwd, grp string
@@ -318,12 +287,10 @@ func (analizador *Analizador) Analizar() {
 				} else if len(analizador.Comando) >= 5 && strings.ToLower(analizador.Comando[:5]) == ">grp=" {
 					analizador.obtenerDatoParamC(&grp, 5)
 				} else {
-					fmt.Println(analizador.Comando)
-					fmt.Println("Ingreso un parametro no reconocido")
-					return
+					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			fmt.Printf("MKUSR %s %s %s \n", user, pwd, grp)
+			return fmt.Sprintf("MKUSR %s %s %s \n", user, pwd, grp)
 		} else if nInst == 11 { //Rmusr
 			analizador.Comando = strings.TrimSpace(analizador.Comando[5:])
 			var user string
@@ -334,12 +301,10 @@ func (analizador *Analizador) Analizar() {
 				} else if len(analizador.Comando) >= 6 && strings.ToLower(analizador.Comando[:6]) == ">user=" {
 					analizador.obtenerDatoParamC(&user, 6)
 				} else {
-					fmt.Println(analizador.Comando)
-					fmt.Println("Ingreso un parametro no reconocido")
-					return
+					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			fmt.Printf("RMUSR %s \n", user)
+			return fmt.Sprintf("RMUSR %s \n", user)
 		} else if nInst == 12 { //Mkfile
 			analizador.Comando = strings.TrimSpace(analizador.Comando[6:])
 			r := false
@@ -359,12 +324,10 @@ func (analizador *Analizador) Analizar() {
 					r = true
 					analizador.Comando = strings.TrimSpace(analizador.Comando[2:])
 				} else {
-					fmt.Println(analizador.Comando)
-					fmt.Println("Ingreso un parametro no reconocido")
-					return
+					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			fmt.Printf("MKFILE %s %s %d %t \n", path, cont, size, r)
+			return fmt.Sprintf("MKFILE %s %s %d %t \n", path, cont, size, r)
 		} else if nInst == 13 { //Mkdir
 			analizador.Comando = strings.TrimSpace(analizador.Comando[5:])
 			r := false
@@ -379,19 +342,15 @@ func (analizador *Analizador) Analizar() {
 					r = true
 					analizador.Comando = strings.TrimSpace(analizador.Comando[2:])
 				} else {
-					fmt.Println(analizador.Comando)
-					fmt.Println("Ingreso un parametro no reconocido")
-					return
+					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			fmt.Printf("MKDIR %s %t \n", path, r)
+			return fmt.Sprintf("MKDIR %s %t \n", path, r)
 		} else if nInst == 14 { //Pause
 			analizador.Comando = strings.TrimSpace(analizador.Comando[5:])
 
 			if analizador.Comando != "" {
-				fmt.Println(analizador.Comando)
-				fmt.Println("Ingreso un parametro no reconocido")
-				return
+				return analizador.Comando + " Ingreso un parametro no reconocido"
 			}
 			fmt.Printf("Pause\n")
 			bufio.NewReader(os.Stdin).ReadBytes('\n')
@@ -411,13 +370,12 @@ func (analizador *Analizador) Analizar() {
 				} else if len(analizador.Comando) >= 6 && strings.ToLower(analizador.Comando[:6]) == ">ruta=" {
 					analizador.obtenerDatoParamC(&ruta, 6)
 				} else {
-					fmt.Println(analizador.Comando)
-					fmt.Println("Ingreso un parametro no reconocido")
-					return
+					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			fmt.Printf("REP %s %s %s %s \n", name, path, id, ruta)
+			return fmt.Sprintf("REP %s %s %s %s \n", name, path, id, ruta)
 		}
+		return "Esto no deberia pasar :v"
 	}
 
 }
