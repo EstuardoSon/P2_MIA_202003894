@@ -3,6 +3,8 @@ package estructuras
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
+	"os"
 	"strings"
 )
 
@@ -24,12 +26,12 @@ type MBR struct {
 }
 
 type EBR struct {
-	part_status byte
-	part_fit    byte
-	part_start  [4]byte
-	part_size   [4]byte
-	part_next   [4]byte
-	part_name   [16]byte
+	Part_status byte
+	Part_fit    byte
+	Part_start  [4]byte
+	Part_size   [4]byte
+	Part_next   [4]byte
+	Part_name   [16]byte
 }
 
 type SuperBloque struct {
@@ -110,4 +112,14 @@ func DivPath(path string) (directorios, nombre string) {
 		return directorios, nombre
 	}
 	return "", path
+}
+
+func extraerStruct(file *os.File, number int) *bytes.Buffer {
+	data := make([]byte, number)
+	_, err := file.Read(data)
+	if err != nil {
+		fmt.Println(err)
+	}
+	buff := bytes.NewBuffer(data)
+	return buff
 }

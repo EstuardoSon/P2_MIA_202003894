@@ -62,7 +62,8 @@ func Mkdisk(s int, path, f, u string) string {
 	}
 
 	//Creacion del Archivo y llenandolo de caracteres vacios
-	file, err = os.OpenFile(directorios+"/"+nombre, os.O_RDWR|os.O_CREATE, 0777)
+	file, err = os.OpenFile(directorios+"/"+nombre, os.O_CREATE|os.O_RDWR, 0664)
+	err = os.Chmod(path, 0777)
 
 	if err != nil {
 		return fmt.Sprintf("%s", err)

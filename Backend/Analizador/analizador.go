@@ -185,7 +185,8 @@ func (analizador *Analizador) Analizar() string {
 					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			fmt.Printf("FDISK %d %s %s %s %s %s\n", size, tipo, unit, path, fit, name)
+
+			return estructuras.Fdisk(size, unit, path, tipo, fit, name)
 		} else if nInst == 4 { //Mount
 			analizador.Comando = strings.TrimSpace(analizador.Comando[5:])
 			var path, name, id string
