@@ -19,6 +19,7 @@ type ComandoJson struct {
 }
 
 var listaMount *estructuras.ListaMount
+var usuario *estructuras.Usuario
 
 func index(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
@@ -37,7 +38,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 			for _, comando := range Comandos {
 				if strings.TrimSpace(comando) != "" {
-					a := &analizador.Analizador{Comando: strings.TrimSpace(comando), ListaMount: listaMount}
+					a := &analizador.Analizador{Comando: strings.TrimSpace(comando), ListaMount: listaMount, Usuario: usuario}
 					resultado += a.Analizar() + "\n\n"
 				}
 			}
@@ -50,6 +51,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	listaMount = &estructuras.ListaMount{}
+	usuario = &estructuras.Usuario{}
 
 	mux := http.NewServeMux()
 	(*mux).HandleFunc("/", index)

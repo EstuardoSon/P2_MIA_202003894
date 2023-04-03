@@ -17,6 +17,7 @@ type error interface {
 type Analizador struct {
 	Comando    string
 	ListaMount *estructuras.ListaMount
+	Usuario    *estructuras.Usuario
 }
 
 func (analizador *Analizador) recoInstrucion(cadena string) (int, error) {
@@ -200,7 +201,7 @@ func (analizador *Analizador) Analizar() string {
 				} else if len(analizador.Comando) >= 6 && strings.ToLower(analizador.Comando[:6]) == ">name=" {
 					analizador.obtenerDatoParamC(&name, 6)
 				} else if len(analizador.Comando) >= 4 && strings.ToLower(analizador.Comando[:4]) == ">id=" {
-					analizador.obtenerDatoParamS(&id, 4)
+					analizador.obtenerDatoParamC(&id, 4)
 				} else {
 					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
@@ -212,19 +213,20 @@ func (analizador *Analizador) Analizar() string {
 		} else if nInst == 5 { //Mkfs
 			analizador.Comando = strings.TrimSpace(analizador.Comando[4:])
 			var tipo, id string
+			tipo = "full"
 
 			for len(analizador.Comando) > 0 {
 				if analizador.verificarComentario(analizador.Comando) {
 					break
 				} else if len(analizador.Comando) >= 6 && strings.ToLower(analizador.Comando[:6]) == ">type=" {
-					analizador.obtenerDatoParamC(&tipo, 6)
+					analizador.obtenerDatoParamS(&tipo, 6)
 				} else if len(analizador.Comando) >= 4 && strings.ToLower(analizador.Comando[:4]) == ">id=" {
-					analizador.obtenerDatoParamS(&id, 4)
+					analizador.obtenerDatoParamC(&id, 4)
 				} else {
 					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			return fmt.Sprintf("MKFS %s %s \n", tipo, id)
+			return analizador.ListaMount.Mkfs(id, tipo)
 		} else if nInst == 6 { //Login
 			analizador.Comando = strings.TrimSpace(analizador.Comando[5:])
 			var user, pwd, id string
@@ -237,19 +239,21 @@ func (analizador *Analizador) Analizar() string {
 				} else if len(analizador.Comando) >= 5 && strings.ToLower(analizador.Comando[:5]) == ">pwd=" {
 					analizador.obtenerDatoParamC(&pwd, 5)
 				} else if len(analizador.Comando) >= 4 && strings.ToLower(analizador.Comando[:4]) == ">id=" {
-					analizador.obtenerDatoParamS(&id, 4)
+					analizador.obtenerDatoParamC(&id, 4)
 				} else {
 					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			return fmt.Sprintf("LOGIN %s %s %s \n", user, pwd, id)
+			admin := estructuras.AdminUsuario{ListaMount: analizador.ListaMount, Usuario: analizador.Usuario}
+			return admin.Login(user, pwd, id)
 		} else if nInst == 7 { //Logout
 			analizador.Comando = strings.TrimSpace(analizador.Comando[6:])
 
 			if analizador.Comando != "" {
 				return analizador.Comando + " Ingreso un parametro no reconocido"
 			}
-			return fmt.Sprintf("LOGOUT\n")
+			admin := estructuras.AdminUsuario{ListaMount: analizador.ListaMount, Usuario: analizador.Usuario}
+			return admin.Logout()
 		} else if nInst == 8 { //Mkgrp
 			analizador.Comando = strings.TrimSpace(analizador.Comando[5:])
 			var name string
