@@ -148,7 +148,7 @@ func (this *AdminUsuario) Mkgrp(name string) string {
 		return "No hay una sesion iniciada con anterioridad"
 	} else if this.Usuario.NombreU != "root" && this.Usuario.NombreG != "root" {
 		return "El usuario actual no puede ejecutar el comando"
-	} else if len(name) == 0 {
+	} else if len(name) == 0 && len(name) > 10 {
 		return "El nombre del grupo debe contener un maximo de 10 caracteres"
 	}
 
@@ -235,7 +235,7 @@ func (this *AdminUsuario) Rmgrp(name string) string {
 		return "No hay una sesion iniciada con anterioridad"
 	} else if this.Usuario.NombreU != "root" && this.Usuario.NombreG != "root" {
 		return "El usuario actual no puede ejecutar el comando"
-	} else if len(name) == 0 {
+	} else if len(name) == 0 && len(name) > 10 {
 		return "El nombre del grupo debe contener un maximo de 10 caracteres"
 	}
 
@@ -317,6 +317,224 @@ func (this *AdminUsuario) Rmgrp(name string) string {
 							final += contenido[i] + "\n"
 						}
 					} else if len(datos) == 5 {
+						final += contenido[i] + "\n"
+					}
+				}
+
+				res += WriteInFile(final, &sb, inicioSB, int(BytetoI32(sb.S_inode_start[:]))+binary.Size(TablaInodo{}), archivo)
+			} else {
+				res += "El grupo que desea eliminar no existe"
+			}
+			archivo.Close()
+		} else {
+			this.ListaMount.Eliminar(nodo.IdCompleto)
+			res += "No fue posible encontrar el disco de la particion "
+			archivo.Close()
+		}
+		return res
+	}
+	return "No fue posible encontrar una Particion con el ID ingreado"
+}
+
+// Comando Mkusr
+func (this *AdminUsuario) Mkusr(usuario, password, grupo string) string {
+	usuario = strings.TrimSpace(usuario)
+	password = strings.TrimSpace(password)
+	grupo = strings.TrimSpace(grupo)
+	if this.Usuario.IdParticion == "" {
+		return "No hay una sesion iniciada con anterioridad"
+	} else if this.Usuario.NombreU != "root" && this.Usuario.NombreG != "root" {
+		return "El usuario actual no puede ejecutar el comando"
+	} else if (len(usuario) > 10 || len(usuario) == 0) || (len(password) > 10 || len(password) == 0) || (len(grupo) > 10 || len(grupo) == 0) {
+		return "Los parametros deben tener un maximo de 10 caracteres"
+	}
+
+	nodo := this.ListaMount.Buscar(this.Usuario.IdParticion)
+	if nodo != nil {
+		var archivo *os.File
+		archivo, _ = os.OpenFile(nodo.Fichero+"/"+nodo.Nombre_disco, os.O_RDWR, 0777)
+
+		if archivo != nil {
+			inicioSB := 0
+			sb := SuperBloque{}
+
+			//Particion Primaria
+			if nodo.Part_type == 'P' {
+				mbr := MBR{}
+				archivo.Seek(0, 0)
+				binary.Read(extraerStruct(archivo, binary.Size(mbr)), binary.BigEndian, &mbr)
+				var i int
+
+				//Verificar la existencia de la particion
+				for i = 0; i < 4; i++ {
+					if string(bytes.Trim(mbr.Mbr_partition[i].Part_name[:], "\000")) == nodo.Nombre_particion {
+						break
+					}
+				}
+
+				//Error de posicion no encontrada
+				if i == 5 {
+					this.ListaMount.Eliminar(nodo.IdCompleto)
+					archivo.Close()
+					return "No fue posible encontrar la particion en el disco"
+				} else { //Posicion si Encontrada
+					if mbr.Mbr_partition[i].Part_status != '2' {
+						archivo.Close()
+						return "No se ha aplicado el comando mkfs a la particion"
+					}
+					//Recuperar la informacion del superbloque
+					archivo.Seek(int64(BytetoI32(mbr.Mbr_partition[i].Part_start[:])), 0)
+					inicioSB = int(BytetoI32(mbr.Mbr_partition[i].Part_start[:]))
+					binary.Read(extraerStruct(archivo, binary.Size(sb)), binary.BigEndian, &sb)
+				}
+			} else if nodo.Part_type == 'L' { //Particiones Logicas
+				ebr := EBR{}
+				archivo.Seek(int64(nodo.Part_start), 0)
+				binary.Read(extraerStruct(archivo, binary.Size(ebr)), binary.BigEndian, &ebr)
+				if ebr.Part_status != '2' {
+					archivo.Close()
+					return "No se ha aplicado el comando mkfs a la particion"
+				}
+				binary.Read(extraerStruct(archivo, binary.Size(sb)), binary.BigEndian, &sb)
+				inicioSB = nodo.Part_start
+			}
+
+			//Acceder al archivo user.txt
+			utxt := GetContentF(int(BytetoI32((sb.S_inode_start[:])))+binary.Size(TablaInodo{}), archivo)
+			usuarios := []string{}
+			grupos := []string{}
+			ObtenerUG(utxt, &usuarios, &grupos)
+
+			banderaG := false
+			banderaU := false
+
+			res := ""
+
+			for i := 0; i < len(grupos); i++ {
+				gDatos := strings.Split(grupos[i], ",")
+				if gDatos[2] == grupo && gDatos[0] != "0" {
+					banderaG = true
+					break
+				}
+			}
+
+			if banderaG {
+				for i := 0; i < len(usuarios); i++ {
+					uDatos := strings.Split(usuarios[i], ",")
+					if uDatos[3] == usuario && uDatos[0] != "0" {
+						banderaU = true
+						break
+					}
+				}
+
+				if !banderaU {
+					numeroG := len(usuarios) + 1
+					utxt += strconv.Itoa(numeroG) + ",U," + grupo + "," + usuario + "," + password + "\n"
+					res = WriteInFile(utxt, &sb, inicioSB, int(BytetoI32(sb.S_inode_start[:]))+binary.Size(TablaInodo{}), archivo)
+				} else {
+					res = "Ya existe un usuario con el nombre solicitado"
+				}
+			} else {
+				res = "El grupo no existe"
+			}
+			archivo.Close()
+			return res
+		}
+		this.ListaMount.Eliminar(nodo.IdCompleto)
+		return "No fue posible encontrar el disco de la particion"
+	}
+	return "No fue posible encontrar una Particion montada con ese ID"
+}
+
+// Comando Rmusr
+func (this *AdminUsuario) Rmusr(usuario string) string {
+	usuario = strings.TrimSpace(usuario)
+	if this.Usuario.IdParticion == "" {
+		return "No hay una sesion iniciada con anterioridad"
+	} else if this.Usuario.NombreU != "root" && this.Usuario.NombreG != "root" {
+		return "El usuario actual no puede ejecutar el comando"
+	} else if len(usuario) == 0 && len(usuario) > 10 {
+		return "El nombre del usuario debe contener un maximo de 10 caracteres"
+	}
+
+	nodo := this.ListaMount.Buscar(this.Usuario.IdParticion)
+	res := ""
+	if nodo != nil {
+		var archivo *os.File
+		archivo, _ = os.OpenFile(nodo.Fichero+"/"+nodo.Nombre_disco, os.O_RDWR, 0777)
+
+		if archivo != nil {
+			inicioSB := 0
+			sb := SuperBloque{}
+
+			//Particion Primaria
+			if nodo.Part_type == 'P' {
+				mbr := MBR{}
+				archivo.Seek(0, 0)
+				binary.Read(extraerStruct(archivo, binary.Size(mbr)), binary.BigEndian, &mbr)
+				var i int
+
+				//Verificar la existencia de la particion
+				for i = 0; i < 4; i++ {
+					if string(bytes.Trim(mbr.Mbr_partition[i].Part_name[:], "\000")) == nodo.Nombre_particion {
+						break
+					}
+				}
+
+				//Error de posicion no encontrada
+				if i == 5 {
+					this.ListaMount.Eliminar(nodo.IdCompleto)
+					archivo.Close()
+					return "No fue posible encontrar la particion en el disco"
+				} else { //Posicion si Encontrada
+					if mbr.Mbr_partition[i].Part_status != '2' {
+						archivo.Close()
+						return "No se ha aplicado el comando mkfs a la particion"
+					}
+					//Recuperar la informacion del superbloque
+					archivo.Seek(int64(BytetoI32(mbr.Mbr_partition[i].Part_start[:])), 0)
+					inicioSB = int(BytetoI32(mbr.Mbr_partition[i].Part_start[:]))
+					binary.Read(extraerStruct(archivo, binary.Size(sb)), binary.BigEndian, &sb)
+				}
+			} else if nodo.Part_type == 'L' { //Particiones Logicas
+				ebr := EBR{}
+				archivo.Seek(int64(nodo.Part_start), 0)
+				binary.Read(extraerStruct(archivo, binary.Size(ebr)), binary.BigEndian, &ebr)
+				if ebr.Part_status != '2' {
+					archivo.Close()
+					return "No se ha aplicado el comando mkfs a la particion"
+				}
+				binary.Read(extraerStruct(archivo, binary.Size(sb)), binary.BigEndian, &sb)
+				inicioSB = nodo.Part_start
+			}
+
+			//Acceder al archivo user.txt
+			utxt := GetContentF(int(BytetoI32((sb.S_inode_start[:])))+binary.Size(TablaInodo{}), archivo)
+			usuarios := []string{}
+			grupos := []string{}
+			ObtenerUG(utxt, &usuarios, &grupos)
+
+			bandera := false
+			for i := 0; i < len(usuarios); i++ {
+				datos := strings.Split(usuarios[i], ",")
+				if datos[0] != "0" && datos[3] == usuario {
+					bandera = true
+					break
+				}
+			}
+
+			if bandera {
+				contenido := strings.Split(utxt, "\n")
+				final := ""
+				for i := 0; i < len(contenido); i++ {
+					datos := strings.Split(contenido[i], ",")
+					if len(datos) == 5 {
+						if datos[0] != "0" && datos[3] == usuario {
+							final += "0," + datos[1] + "," + datos[2] + "," + datos[3] + "," + datos[4] + "\n"
+						} else {
+							final += contenido[i] + "\n"
+						}
+					} else if len(datos) == 3 {
 						final += contenido[i] + "\n"
 					}
 				}

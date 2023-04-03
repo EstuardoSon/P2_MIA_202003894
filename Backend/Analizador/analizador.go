@@ -301,7 +301,8 @@ func (analizador *Analizador) Analizar() string {
 					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			return fmt.Sprintf("MKUSR %s %s %s \n", user, pwd, grp)
+			admin := estructuras.AdminUsuario{ListaMount: analizador.ListaMount, Usuario: analizador.Usuario}
+			return admin.Mkusr(user, pwd, grp)
 		} else if nInst == 11 { //Rmusr
 			analizador.Comando = strings.TrimSpace(analizador.Comando[5:])
 			var user string
@@ -315,7 +316,8 @@ func (analizador *Analizador) Analizar() string {
 					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			return fmt.Sprintf("RMUSR %s \n", user)
+			admin := estructuras.AdminUsuario{ListaMount: analizador.ListaMount, Usuario: analizador.Usuario}
+			return admin.Rmusr(user)
 		} else if nInst == 12 { //Mkfile
 			analizador.Comando = strings.TrimSpace(analizador.Comando[6:])
 			r := false
