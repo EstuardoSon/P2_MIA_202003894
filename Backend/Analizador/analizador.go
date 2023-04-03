@@ -267,7 +267,8 @@ func (analizador *Analizador) Analizar() string {
 					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			return fmt.Sprintf("MKGRP %s \n", name)
+			admin := estructuras.AdminUsuario{ListaMount: analizador.ListaMount, Usuario: analizador.Usuario}
+			return admin.Mkgrp(name)
 		} else if nInst == 9 { //Rmgrp
 			analizador.Comando = strings.TrimSpace(analizador.Comando[5:])
 			var name string
@@ -281,7 +282,8 @@ func (analizador *Analizador) Analizar() string {
 					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			return fmt.Sprintf("RMGRP %s \n", name)
+			admin := estructuras.AdminUsuario{ListaMount: analizador.ListaMount, Usuario: analizador.Usuario}
+			return admin.Rmgrp(name)
 		} else if nInst == 10 { //Mkusr
 			analizador.Comando = strings.TrimSpace(analizador.Comando[5:])
 			var user, pwd, grp string

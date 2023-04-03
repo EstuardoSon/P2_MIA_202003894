@@ -172,3 +172,105 @@ func ObtenerUG(cadena string, usuarios *[]string, grupos *[]string) {
 		}
 	}
 }
+
+func BuscarBM_b(sb *SuperBloque, archivo *os.File) int {
+	archivo.Seek(int64(BytetoI32(sb.S_bm_block_start[:])), 0)
+	for i := 0; i < int(BytetoI32(sb.S_blocks_count[:])); i++ {
+		var caracter byte
+		binary.Read(extraerStruct(archivo, binary.Size(caracter)), binary.BigEndian, &caracter)
+
+		if caracter == '0' {
+			return i
+		}
+	}
+	return -1
+}
+
+// Escribir en un archivo
+func WriteInFile(texto string, sb *SuperBloque, inicioSB, inicioInodo int, archivo *os.File) string {
+	if len(texto) <= 1024 {
+		ti := TablaInodo{}
+
+		var caracter byte
+		caracter = '1'
+		nChar := 0
+		bandera := false
+		err := ""
+
+		archivo.Seek(int64(inicioInodo), 0)
+		binary.Read(extraerStruct(archivo, binary.Size(ti)), binary.BigEndian, &ti)
+		ti.I_size = I32toByte(int32(len(texto)))
+
+		//Recorrer Array de Bloques de inodo
+		for i := 0; i < 16; i++ {
+			if int(BytetoI32(ti.I_block[i][:])) != -1 {
+				ba := BloqueArchivo{}
+				archivo.Seek(int64(BytetoI32(ti.I_block[i][:])), 0)
+				binary.Read(extraerStruct(archivo, binary.Size(ba)), binary.BigEndian, &ba)
+				for j := 0; j < 64; j++ {
+					if nChar < len(texto) {
+						ba.B_content[j] = texto[nChar]
+						nChar++
+						continue
+					} else {
+						ba.B_content[j] = '\000'
+					}
+				}
+				archivo.Seek(int64(BytetoI32(ti.I_block[i][:])), 0)
+				var bs bytes.Buffer
+				binary.Write(&bs, binary.BigEndian, ba)
+				_, _ = archivo.Write(bs.Bytes())
+			} else if int(BytetoI32(ti.I_block[i][:])) == -1 && nChar < len(texto) && !bandera {
+				if int(BytetoI32(sb.S_free_blocks_count[:])) > 0 {
+					ba := BloqueArchivo{}
+					sb.S_first_blo = I32toByte(int32(BuscarBM_b(sb, archivo)))
+					ti.I_block[i] = I32toByte(int32(int(BytetoI32(sb.S_block_start[:])) + (int(BytetoI32(sb.S_first_blo[:])) * binary.Size(ba))))
+
+					for j := 0; j < 64; j++ {
+						if nChar < len(texto) {
+							ba.B_content[j] = texto[nChar]
+							nChar++
+							continue
+						} else {
+							ba.B_content[j] = '\000'
+						}
+					}
+
+					archivo.Seek(int64(BytetoI32(ti.I_block[i][:])), 0)
+					var bs bytes.Buffer
+					binary.Write(&bs, binary.BigEndian, ba)
+					_, _ = archivo.Write(bs.Bytes())
+
+					archivo.Seek(int64(BytetoI32(sb.S_bm_block_start[:])+BytetoI32(sb.S_first_blo[:])), 0)
+					bs.Reset()
+					binary.Write(&bs, binary.BigEndian, caracter)
+					_, _ = archivo.Write(bs.Bytes())
+
+					sb.S_free_blocks_count = I32toByte(BytetoI32(sb.S_free_blocks_count[:]) - int32(1))
+				} else {
+					err = "No es posible crear mas bloques en la particion "
+					bandera = true
+					break
+				}
+			} else {
+				break
+			}
+		}
+
+		ti.I_mtime = I64toByte(time.Now().Unix())
+		archivo.Seek(int64(inicioInodo), 0)
+		var bs bytes.Buffer
+		binary.Write(&bs, binary.BigEndian, ti)
+		_, _ = archivo.Write(bs.Bytes())
+
+		sb.S_first_blo = I32toByte(int32(BuscarBM_b(sb, archivo)))
+
+		archivo.Seek(int64(inicioSB), 0)
+		bs.Reset()
+		binary.Write(&bs, binary.BigEndian, sb)
+		_, _ = archivo.Write(bs.Bytes())
+
+		return err + "Modificacion Realizada"
+	}
+	return "El texto que desea ingresar supear el limite del archivo"
+}
