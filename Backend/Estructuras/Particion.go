@@ -78,7 +78,7 @@ func obtenerInincioSiguiente(mbr *MBR, posParticion int) int {
 // Obtener la cantidad de bits libres despues de la particion
 func obtenerSizeDP(mbr *MBR, name string) int {
 	for i := 0; i < 4; i++ {
-		if string(mbr.Mbr_partition[i].Part_name[:]) == name {
+		if string(bytes.Trim(mbr.Mbr_partition[i].Part_name[:], "\000")) == name {
 			return obtenerInincioSiguiente(mbr, i) - int(BytetoI32(mbr.Mbr_partition[i].Part_start[:])) - int(BytetoI32(mbr.Mbr_partition[i].Part_size[:]))
 		}
 	}

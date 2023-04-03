@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	analizador "github.com/EstuardoSon/P2_MIA_202003894/Analizador"
+	estructuras "github.com/EstuardoSon/P2_MIA_202003894/Estructuras"
 	"github.com/rs/cors"
 )
 
@@ -16,6 +17,8 @@ type Respuesta struct {
 type ComandoJson struct {
 	Comando string
 }
+
+var listaMount *estructuras.ListaMount
 
 func index(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
@@ -34,7 +37,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 			for _, comando := range Comandos {
 				if strings.TrimSpace(comando) != "" {
-					a := &analizador.Analizador{Comando: strings.TrimSpace(comando)}
+					a := &analizador.Analizador{Comando: strings.TrimSpace(comando), ListaMount: listaMount}
 					resultado += a.Analizar() + "\n\n"
 				}
 			}
@@ -45,19 +48,11 @@ func index(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func initRoutes(mux *http.ServeMux) {
-	(*mux).HandleFunc("/", index)
-}
-
-func New() *http.ServeMux {
-	mux := http.NewServeMux()
-	initRoutes(mux)
-
-	return mux
-}
-
 func main() {
-	mux := New()
+	listaMount = &estructuras.ListaMount{}
+
+	mux := http.NewServeMux()
+	(*mux).HandleFunc("/", index)
 
 	handler := cors.Default().Handler(mux)
 	http.ListenAndServe(":8080", handler)

@@ -15,7 +15,8 @@ type error interface {
 }
 
 type Analizador struct {
-	Comando string
+	Comando    string
+	ListaMount *estructuras.ListaMount
 }
 
 func (analizador *Analizador) recoInstrucion(cadena string) (int, error) {
@@ -204,7 +205,10 @@ func (analizador *Analizador) Analizar() string {
 					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			return fmt.Sprintf("MOUNT %s %s %s \n", path, name, id)
+			directorios, nombre := estructuras.DivPath(path)
+			nuevo := estructuras.NodoMount{Fichero: directorios, Nombre_disco: nombre, IdCompleto: id, Nombre_particion: name}
+
+			return analizador.ListaMount.Agregar(&nuevo)
 		} else if nInst == 5 { //Mkfs
 			analizador.Comando = strings.TrimSpace(analizador.Comando[4:])
 			var tipo, id string
