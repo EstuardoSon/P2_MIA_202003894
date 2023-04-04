@@ -186,6 +186,19 @@ func BuscarBM_b(sb *SuperBloque, archivo *os.File) int {
 	return -1
 }
 
+func BuscarBM_i(sb *SuperBloque, archivo *os.File) int {
+	archivo.Seek(int64(BytetoI32(sb.S_bm_inode_start[:])), 0)
+	for i := 0; i < int(BytetoI32(sb.S_inodes_count[:])); i++ {
+		var caracter byte
+		binary.Read(extraerStruct(archivo, binary.Size(caracter)), binary.BigEndian, &caracter)
+
+		if caracter == '0' {
+			return i
+		}
+	}
+	return -1
+}
+
 // Escribir en un archivo
 func WriteInFile(texto string, sb *SuperBloque, inicioSB, inicioInodo int, archivo *os.File) string {
 	if len(texto) <= 1024 {

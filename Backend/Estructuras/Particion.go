@@ -245,7 +245,7 @@ func verificarPE(mbr *MBR) bool {
 }
 
 func Fdisk(s int, u, p, t, f, name string) string {
-	tamanio := verificarTamanio(u)
+	tamanio := verificarTamanioP(u)
 	ajusteP := verificarAjusteP(f)
 	tipoP := verificarTipoP(t)
 

@@ -340,7 +340,10 @@ func (analizador *Analizador) Analizar() string {
 					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			return fmt.Sprintf("MKFILE %s %s %d %t \n", path, cont, size, r)
+			gestor := estructuras.GestorArchivos{ListaMount: analizador.ListaMount, Usuario: analizador.Usuario}
+			path_f, path_n := estructuras.DivPath(path)
+			cont_f, cont_n := estructuras.DivPath(cont)
+			return gestor.Mkfile(path_f, path_n, r, size, cont_f, cont_n)
 		} else if nInst == 13 { //Mkdir
 			analizador.Comando = strings.TrimSpace(analizador.Comando[5:])
 			r := false

@@ -199,7 +199,7 @@ func (this *AdminUsuario) Mkgrp(name string) string {
 					return "No se ha aplicado el comando mkfs a la particion"
 				}
 				binary.Read(extraerStruct(archivo, binary.Size(sb)), binary.BigEndian, &sb)
-				inicioSB = nodo.Part_start
+				inicioSB = nodo.Part_start + binary.Size(ebr)
 			}
 
 			//Acceder al archivo user.txt
@@ -287,7 +287,7 @@ func (this *AdminUsuario) Rmgrp(name string) string {
 					return "No se ha aplicado el comando mkfs a la particion"
 				}
 				binary.Read(extraerStruct(archivo, binary.Size(sb)), binary.BigEndian, &sb)
-				inicioSB = nodo.Part_start
+				inicioSB = nodo.Part_start + binary.Size(ebr)
 			}
 
 			//Acceder al archivo user.txt
@@ -396,7 +396,7 @@ func (this *AdminUsuario) Mkusr(usuario, password, grupo string) string {
 					return "No se ha aplicado el comando mkfs a la particion"
 				}
 				binary.Read(extraerStruct(archivo, binary.Size(sb)), binary.BigEndian, &sb)
-				inicioSB = nodo.Part_start
+				inicioSB = nodo.Part_start + binary.Size(ebr)
 			}
 
 			//Acceder al archivo user.txt
@@ -505,7 +505,7 @@ func (this *AdminUsuario) Rmusr(usuario string) string {
 					return "No se ha aplicado el comando mkfs a la particion"
 				}
 				binary.Read(extraerStruct(archivo, binary.Size(sb)), binary.BigEndian, &sb)
-				inicioSB = nodo.Part_start
+				inicioSB = nodo.Part_start + binary.Size(ebr)
 			}
 
 			//Acceder al archivo user.txt
