@@ -376,7 +376,7 @@ func (this *ListaMount) Mkfs(id string, tipo string) string {
 						tiUsers.I_mtime = I64toByte(time.Now().Unix())
 						tiUsers.I_perm = I32toByte(700)
 						tiUsers.I_block[0] = I32toByte(BytetoI32(sb.S_block_start[:]) + int32(binary.Size(bc)))
-						for i := 1; i < 15; i++ {
+						for i := 1; i < 16; i++ {
 							tiUsers.I_block[i] = I32toByte(-1)
 						}
 						s := "1,G,root\n1,U,root,root,123\n"
@@ -538,7 +538,7 @@ func (this *ListaMount) Mkfs(id string, tipo string) string {
 						tiUsers.I_mtime = I64toByte(time.Now().Unix())
 						tiUsers.I_perm = I32toByte(700)
 						tiUsers.I_block[0] = I32toByte(BytetoI32(sb.S_block_start[:]) + int32(binary.Size(bc)))
-						for i := 1; i < 15; i++ {
+						for i := 1; i < 16; i++ {
 							tiUsers.I_block[i] = I32toByte(-1)
 						}
 						s := "1,G,root\n1,U,root,root,123\n"

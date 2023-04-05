@@ -25,7 +25,7 @@ func (this *Reporte) GenerarReporte() string {
 	} else if this.Name == "sb" {
 		return this.reporteSb()
 	} else if this.Name == "tree" {
-		//return this.reporteTree()
+		return this.reporteTree()
 	} else if this.Name == "file" {
 		return this.reporteFile()
 	}
@@ -164,6 +164,7 @@ func (this *Reporte) reporteDisk() string {
 				dot += "</tr></table>>];\n"
 				dot += "}"
 
+				archivoReporte.Truncate(0)
 				_, _ = archivoReporte.WriteString(dot)
 
 				archivoDisco.Close()
@@ -306,6 +307,7 @@ func (this *Reporte) reporteSb() string {
 					dot += "</table>>];\n"
 					dot += "}"
 
+					archivoReporte.Truncate(0)
 					_, _ = archivoReporte.WriteString(dot)
 
 					archivoReporte.Close()
@@ -317,7 +319,7 @@ func (this *Reporte) reporteSb() string {
 					}
 				} else {
 					res = "La Particion no exite dentro del disco... Desmontando la particion"
-					this.ListaMount.Eliminar(nodo.Id)
+					this.ListaMount.Eliminar(nodo.IdCompleto)
 				}
 			t0:
 				archivoDisco.Close()
@@ -459,12 +461,13 @@ func (this *Reporte) reporteFile() string {
 						dot += GetContentF(ubicacion, archivoDisco)
 					}
 
+					_ = archivoReporte.Truncate(0)
 					_, _ = archivoReporte.WriteString(dot)
 
 					archivoReporte.Close()
 					res = "Reporte de File generado con Exito"
 				} else {
-					this.ListaMount.Eliminar(nodo.Id)
+					this.ListaMount.Eliminar(nodo.IdCompleto)
 					res = "La Particion no exite dentro del disco... Desmontando la particion"
 				}
 			t0:
@@ -477,4 +480,242 @@ func (this *Reporte) reporteFile() string {
 		}
 	}
 	return "Ingreso valores invalidos en Path o Ruta"
+}
+
+// Generar Reporte Tree
+func (this *Reporte) reporteTree() string {
+	if this.Path != "" {
+		nodo := this.ListaMount.Buscar(this.Id)
+
+		if nodo != nil {
+			archivoDisco, err := os.OpenFile(nodo.Fichero+"/"+nodo.Nombre_disco, os.O_RDONLY, 0777)
+
+			if err == nil {
+				//Creacion de los ficheros y dando permisos
+				mbr := MBR{}
+				dot := ""
+				binary.Read(extraerStruct(archivoDisco, binary.Size(mbr)), binary.BigEndian, &mbr)
+
+				sb := SuperBloque{}
+				verificar := false
+				res := ""
+				for i := 0; i < 4; i++ {
+					if string(bytes.Trim(mbr.Mbr_partition[i].Part_name[:], "\000")) == nodo.Nombre_particion &&
+						nodo.Part_type == mbr.Mbr_partition[i].Part_type {
+						if mbr.Mbr_partition[i].Part_status == '2' {
+							archivoDisco.Seek(int64(BytetoI32(mbr.Mbr_partition[i].Part_start[:])), 0)
+							binary.Read(extraerStruct(archivoDisco, binary.Size(sb)), binary.BigEndian, &sb)
+							verificar = true
+							break
+						} else if mbr.Mbr_partition[i].Part_status == '1' {
+							res = "No se ha aplicado el comando MKFS a la Particion"
+							goto t0
+						} else if mbr.Mbr_partition[i].Part_status == '0' {
+							res = "No se encontro la Particion en el Disco... Desmontando la Praticion"
+							this.ListaMount.Eliminar(nodo.IdCompleto)
+							goto t0
+						}
+					} else if mbr.Mbr_partition[i].Part_type == 'E' &&
+						nodo.Part_type == 'L' {
+						ebr := EBR{}
+						archivoDisco.Seek(int64(nodo.Part_start), 0)
+						binary.Read(extraerStruct(archivoDisco, binary.Size(ebr)), binary.BigEndian, &ebr)
+
+						if string(bytes.Trim(ebr.Part_name[:], "\000")) == nodo.Nombre_particion {
+							if ebr.Part_status == '2' {
+								archivoDisco.Seek(int64(BytetoI32(ebr.Part_start[:])+int32(binary.Size(ebr))), 0)
+								binary.Read(extraerStruct(archivoDisco, binary.Size(sb)), binary.BigEndian, &sb)
+								verificar = true
+								break
+							} else if ebr.Part_status == '1' {
+								res = "No se ha aplicado el comando MKFS a la Particion"
+								goto t0
+							} else if ebr.Part_status == '0' {
+								res = "No se encontro la Particion en el Disco... Desmontando la Praticion"
+								this.ListaMount.Eliminar(nodo.IdCompleto)
+								goto t0
+							}
+						}
+					}
+				}
+
+				if verificar {
+					_, n_reporte := DivPath(this.Path)
+					archivoReporte, _ := os.OpenFile("./Reportes/DOTS/reporteTree.dot", os.O_RDWR|os.O_CREATE, 0777)
+					conexiones := ""
+
+					dot += "digraph G {\n"
+					dot += "rankdir=LR;\n"
+					dot += "node[shape=none]\n"
+
+					for a := 0; a < int(BytetoI32(sb.S_inodes_count[:])); a++ {
+						var caracter byte
+						ti := TablaInodo{}
+
+						archivoDisco.Seek(int64(BytetoI32(sb.S_bm_inode_start[:])+int32(a)), 0)
+						binary.Read(extraerStruct(archivoDisco, binary.Size(caracter)), binary.BigEndian, &caracter)
+
+						if caracter == '1' {
+							archivoDisco.Seek(int64(BytetoI32(sb.S_inode_start[:])+(int32(a)*int32(binary.Size(ti)))), 0)
+							binary.Read(extraerStruct(archivoDisco, binary.Size(ti)), binary.BigEndian, &ti)
+
+							dot += this.treeInodo(int(BytetoI32(sb.S_inode_start[:])+(int32(a)*int32(binary.Size(ti)))), a, archivoDisco, archivoReporte, &conexiones)
+							for i := 0; i < 16; i++ {
+								if BytetoI32(ti.I_block[i][:]) != -1 {
+									if ti.I_type == '0' {
+										dot += this.treeCarpeta(int(BytetoI32(ti.I_block[i][:])), archivoDisco, archivoReporte, &conexiones)
+									} else if ti.I_type == '1' {
+										dot += this.treeArchivo(int(BytetoI32(ti.I_block[i][:])), archivoDisco, archivoReporte, &conexiones)
+									}
+
+								}
+							}
+						}
+					}
+					dot += conexiones
+					dot += "}"
+					_ = archivoReporte.Truncate(0)
+					_, _ = archivoReporte.WriteString(dot)
+
+					archivoReporte.Close()
+					_, err := exec.Command("dot", "-T"+GetExtension(n_reporte), "Reportes/DOTS/reporteTree.dot", "-o", "Reportes/"+nodo.IdCompleto+"_Tree."+GetExtension(n_reporte)).Output()
+					if err != nil {
+						res = "No fue posible completar la creacion del Reporte Tree"
+					} else {
+						res = "Reporte de Tree generado con Exito"
+					}
+				} else {
+					this.ListaMount.Eliminar(nodo.IdCompleto)
+					return "La Particion no exite dentro del disco... Desmontando la particion"
+				}
+			t0:
+				archivoDisco.Close()
+				return res
+			} else {
+				this.ListaMount.Eliminar(this.Id)
+				return "No fue posible encontrar el Disco... Desmontando particion"
+			}
+		}
+	}
+	return "Ingreso un valor invalido en PATH"
+}
+
+func (this *Reporte) treeInodo(posicion, noInodo int, archivoDisco *os.File, archivoReporte *os.File, conexiones *string) string {
+	dot := ""
+
+	ti := TablaInodo{}
+	archivoDisco.Seek(int64(posicion), 0)
+	binary.Read(extraerStruct(archivoDisco, binary.Size(ti)), binary.BigEndian, &ti)
+
+	dot += fmt.Sprintf("n%d[label=<<table><tr><td colspan=\"2\" bgcolor=\"#376ef3\">INODO %d</td></tr>\n", posicion, noInodo)
+
+	dot += "<tr>\n"
+	dot += "<td>i_uid</td>\n"
+	dot += fmt.Sprintf("<td>%d</td>\n", BytetoI32(ti.I_uid[:]))
+	dot += "</tr>\n"
+
+	dot += "<tr>\n"
+	dot += "<td>i_gid</td>\n"
+	dot += fmt.Sprintf("<td>%d</td>\n", BytetoI32(ti.I_gid[:]))
+	dot += "</tr>\n"
+
+	dot += "<tr>\n"
+	dot += "<td>i_s</td>\n"
+	dot += fmt.Sprintf("<td>%d</td>\n", BytetoI32(ti.I_size[:]))
+	dot += "</tr>\n"
+
+	fecha := time.Unix(BytetoI64(ti.I_atime[:]), 0)
+	dot += "<tr>\n"
+	dot += "<td>i_atime</td>\n"
+	dot += ("<td>" + fecha.String() + "</td>\n")
+	dot += "</tr>\n"
+
+	fecha = time.Unix(BytetoI64(ti.I_ctime[:]), 0)
+	dot += "<tr>\n"
+	dot += "<td>i_ctime</td>\n"
+	dot += ("<td>" + fecha.String() + "</td>\n")
+	dot += "</tr>\n"
+
+	fecha = time.Unix(BytetoI64(ti.I_mtime[:]), 0)
+	dot += "<tr>\n"
+	dot += "<td>i_mtime</td>\n"
+	dot += ("<td>" + fecha.String() + "</td>\n")
+	dot += "</tr>\n"
+
+	for j := 0; j < 16; j++ {
+		if BytetoI32(ti.I_block[j][:]) != -1 {
+			*conexiones += fmt.Sprintf("n%d -> n%d\n", posicion, BytetoI32(ti.I_block[j][:]))
+			dot += "<tr>\n"
+			dot += fmt.Sprintf("<td>ap%d</td>\n", j)
+			dot += fmt.Sprintf("<td port=\"%d\">%d</td>\n", BytetoI32(ti.I_block[j][:]), BytetoI32(ti.I_block[j][:]))
+			dot += "</tr>\n"
+		} else {
+			dot += "<tr>\n"
+			dot += "<td>i_block</td>\n"
+			dot += "<td>-1</td>\n"
+			dot += "</tr>\n"
+		}
+
+	}
+
+	dot += "<tr>\n"
+	dot += "<td>i_type</td>\n"
+	dot += ("<td>" + string(ti.I_type) + "</td>\n")
+	dot += "</tr>\n"
+
+	dot += "<tr>\n"
+	dot += "<td>i_perm</td>\n"
+	dot += fmt.Sprintf("<td>%d</td>\n", BytetoI32(ti.I_perm[:]))
+	dot += "</tr>\n"
+
+	dot += "</table>>]\n"
+	return dot
+}
+
+func (this *Reporte) treeArchivo(posicion int, archivoDisco *os.File, archivoReporte *os.File, conexiones *string) string {
+	content := ""
+	dot := ""
+	archivo := BloqueArchivo{}
+	archivoDisco.Seek(int64(posicion), 0)
+	binary.Read(extraerStruct(archivoDisco, binary.Size(archivo)), binary.BigEndian, &archivo)
+
+	for i := 0; i < 64; i++ {
+		if archivo.B_content[i] == '\000' {
+			break
+		}
+		content += string(archivo.B_content[i])
+	}
+
+	dot += fmt.Sprintf("n%d[label=<<table>\n", posicion)
+	dot += "<tr>\n"
+	dot += "<td colspan=\"2\" bgcolor=\"#c3f8b6\">Bloque Archivo</td>"
+	dot += "</tr>\n<tr>\n"
+	dot += ("<td>" + content + "</td>\n")
+	dot += "</tr>\n</table>>]\n"
+	return dot
+}
+
+func (this *Reporte) treeCarpeta(posicion int, archivoDisco *os.File, archivoReporte *os.File, conexiones *string) string {
+	carpeta := BloqueCarpeta{}
+	dot := ""
+	archivoDisco.Seek(int64(posicion), 0)
+	binary.Read(extraerStruct(archivoDisco, binary.Size(carpeta)), binary.BigEndian, &carpeta)
+
+	dot += fmt.Sprintf("n%d[label=<<table>\n", posicion)
+	dot += "<tr>\n"
+	dot += "<td colspan=\"2\" bgcolor=\"#f34037\">Bloque Carpeta</td>"
+	dot += "</tr>\n"
+	for i := 0; i < 4; i++ {
+		if BytetoI32(carpeta.B_content[i].B_inodo[:]) != -1 {
+			*conexiones += fmt.Sprintf("n%d -> n%d\n", posicion, BytetoI32(carpeta.B_content[i].B_inodo[:]))
+		}
+
+		dot += "<tr>\n"
+		dot += ("<td>" + string(bytes.Trim(carpeta.B_content[i].B_name[:], "\000")) + "</td>\n")
+		dot += fmt.Sprintf("<td port=\"%d\">%d</td>\n", BytetoI32(carpeta.B_content[i].B_inodo[:]), BytetoI32(carpeta.B_content[i].B_inodo[:]))
+		dot += "</tr>\n"
+	}
+	dot += "</table>>]\n"
+
+	return dot
 }

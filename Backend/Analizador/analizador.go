@@ -379,7 +379,7 @@ func (analizador *Analizador) Analizar() string {
 				if analizador.verificarComentario(analizador.Comando) {
 					break
 				} else if len(analizador.Comando) >= 6 && strings.ToLower(analizador.Comando[:6]) == ">name=" {
-					analizador.obtenerDatoParamC(&name, 6)
+					analizador.obtenerDatoParamS(&name, 6)
 				} else if len(analizador.Comando) >= 6 && strings.ToLower(analizador.Comando[:6]) == ">path=" {
 					analizador.obtenerDatoParamC(&path, 6)
 				} else if len(analizador.Comando) >= 4 && strings.ToLower(analizador.Comando[:4]) == ">id=" {

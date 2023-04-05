@@ -1,0 +1,1087 @@
+digraph G {
+rankdir=LR;
+node[shape=none]
+n308783[label=<<table><tr><td colspan="2" bgcolor="#376ef3">INODO 0</td></tr>
+<tr>
+<td>i_uid</td>
+<td>1</td>
+</tr>
+<tr>
+<td>i_gid</td>
+<td>1</td>
+</tr>
+<tr>
+<td>i_s</td>
+<td>0</td>
+</tr>
+<tr>
+<td>i_atime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>i_ctime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>i_mtime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>ap0</td>
+<td port="344378">344378</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_type</td>
+<td>0</td>
+</tr>
+<tr>
+<td>i_perm</td>
+<td>664</td>
+</tr>
+</table>>]
+n344378[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#f34037">Bloque Carpeta</td></tr>
+<tr>
+<td>.</td>
+<td port="308783">308783</td>
+</tr>
+<tr>
+<td>..</td>
+<td port="308783">308783</td>
+</tr>
+<tr>
+<td>users.txt</td>
+<td port="308888">308888</td>
+</tr>
+<tr>
+<td>home</td>
+<td port="308993">308993</td>
+</tr>
+</table>>]
+n308888[label=<<table><tr><td colspan="2" bgcolor="#376ef3">INODO 1</td></tr>
+<tr>
+<td>i_uid</td>
+<td>1</td>
+</tr>
+<tr>
+<td>i_gid</td>
+<td>1</td>
+</tr>
+<tr>
+<td>i_s</td>
+<td>63</td>
+</tr>
+<tr>
+<td>i_atime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>i_ctime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>i_mtime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>ap0</td>
+<td port="344442">344442</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_type</td>
+<td>1</td>
+</tr>
+<tr>
+<td>i_perm</td>
+<td>700</td>
+</tr>
+</table>>]
+n344442[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#c3f8b6">Bloque Archivo</td></tr>
+<tr>
+<td>1,G,root
+1,U,root,root,123
+2,G,Famili
+0,U,Famili,user1,usuario
+</td>
+</tr>
+</table>>]
+n308993[label=<<table><tr><td colspan="2" bgcolor="#376ef3">INODO 2</td></tr>
+<tr>
+<td>i_uid</td>
+<td>1</td>
+</tr>
+<tr>
+<td>i_gid</td>
+<td>1</td>
+</tr>
+<tr>
+<td>i_s</td>
+<td>0</td>
+</tr>
+<tr>
+<td>i_atime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>i_ctime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>i_mtime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>ap0</td>
+<td port="344506">344506</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_type</td>
+<td>0</td>
+</tr>
+<tr>
+<td>i_perm</td>
+<td>664</td>
+</tr>
+</table>>]
+n344506[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#f34037">Bloque Carpeta</td></tr>
+<tr>
+<td>.</td>
+<td port="308993">308993</td>
+</tr>
+<tr>
+<td>..</td>
+<td port="308783">308783</td>
+</tr>
+<tr>
+<td>documentos</td>
+<td port="309098">309098</td>
+</tr>
+<tr>
+<td></td>
+<td port="-1">-1</td>
+</tr>
+</table>>]
+n309098[label=<<table><tr><td colspan="2" bgcolor="#376ef3">INODO 3</td></tr>
+<tr>
+<td>i_uid</td>
+<td>1</td>
+</tr>
+<tr>
+<td>i_gid</td>
+<td>1</td>
+</tr>
+<tr>
+<td>i_s</td>
+<td>0</td>
+</tr>
+<tr>
+<td>i_atime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>i_ctime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>i_mtime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>ap0</td>
+<td port="344570">344570</td>
+</tr>
+<tr>
+<td>ap1</td>
+<td port="345786">345786</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_type</td>
+<td>0</td>
+</tr>
+<tr>
+<td>i_perm</td>
+<td>664</td>
+</tr>
+</table>>]
+n344570[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#f34037">Bloque Carpeta</td></tr>
+<tr>
+<td>.</td>
+<td port="309098">309098</td>
+</tr>
+<tr>
+<td>..</td>
+<td port="308993">308993</td>
+</tr>
+<tr>
+<td>archivo1.txt</td>
+<td port="309203">309203</td>
+</tr>
+<tr>
+<td>archivo2.txt</td>
+<td port="309308">309308</td>
+</tr>
+</table>>]
+n345786[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#f34037">Bloque Carpeta</td></tr>
+<tr>
+<td>Estuardo</td>
+<td port="309413">309413</td>
+</tr>
+<tr>
+<td></td>
+<td port="-1">-1</td>
+</tr>
+<tr>
+<td></td>
+<td port="-1">-1</td>
+</tr>
+<tr>
+<td></td>
+<td port="-1">-1</td>
+</tr>
+</table>>]
+n309203[label=<<table><tr><td colspan="2" bgcolor="#376ef3">INODO 4</td></tr>
+<tr>
+<td>i_uid</td>
+<td>1</td>
+</tr>
+<tr>
+<td>i_gid</td>
+<td>1</td>
+</tr>
+<tr>
+<td>i_s</td>
+<td>1024</td>
+</tr>
+<tr>
+<td>i_atime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>i_ctime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>i_mtime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>ap0</td>
+<td port="344634">344634</td>
+</tr>
+<tr>
+<td>ap1</td>
+<td port="344698">344698</td>
+</tr>
+<tr>
+<td>ap2</td>
+<td port="344762">344762</td>
+</tr>
+<tr>
+<td>ap3</td>
+<td port="344826">344826</td>
+</tr>
+<tr>
+<td>ap4</td>
+<td port="344890">344890</td>
+</tr>
+<tr>
+<td>ap5</td>
+<td port="344954">344954</td>
+</tr>
+<tr>
+<td>ap6</td>
+<td port="345018">345018</td>
+</tr>
+<tr>
+<td>ap7</td>
+<td port="345082">345082</td>
+</tr>
+<tr>
+<td>ap8</td>
+<td port="345146">345146</td>
+</tr>
+<tr>
+<td>ap9</td>
+<td port="345210">345210</td>
+</tr>
+<tr>
+<td>ap10</td>
+<td port="345274">345274</td>
+</tr>
+<tr>
+<td>ap11</td>
+<td port="345338">345338</td>
+</tr>
+<tr>
+<td>ap12</td>
+<td port="345402">345402</td>
+</tr>
+<tr>
+<td>ap13</td>
+<td port="345466">345466</td>
+</tr>
+<tr>
+<td>ap14</td>
+<td port="345530">345530</td>
+</tr>
+<tr>
+<td>ap15</td>
+<td port="345594">345594</td>
+</tr>
+<tr>
+<td>i_type</td>
+<td>1</td>
+</tr>
+<tr>
+<td>i_perm</td>
+<td>664</td>
+</tr>
+</table>>]
+n344634[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#c3f8b6">Bloque Archivo</td></tr>
+<tr>
+<td>0123456789012345678901234567890123456789012345678901234567890123</td>
+</tr>
+</table>>]
+n344698[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#c3f8b6">Bloque Archivo</td></tr>
+<tr>
+<td>4567890123456789012345678901234567890123456789012345678901234567</td>
+</tr>
+</table>>]
+n344762[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#c3f8b6">Bloque Archivo</td></tr>
+<tr>
+<td>8901234567890123456789012345678901234567890123456789012345678901</td>
+</tr>
+</table>>]
+n344826[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#c3f8b6">Bloque Archivo</td></tr>
+<tr>
+<td>2345678901234567890123456789012345678901234567890123456789012345</td>
+</tr>
+</table>>]
+n344890[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#c3f8b6">Bloque Archivo</td></tr>
+<tr>
+<td>6789012345678901234567890123456789012345678901234567890123456789</td>
+</tr>
+</table>>]
+n344954[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#c3f8b6">Bloque Archivo</td></tr>
+<tr>
+<td>0123456789012345678901234567890123456789012345678901234567890123</td>
+</tr>
+</table>>]
+n345018[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#c3f8b6">Bloque Archivo</td></tr>
+<tr>
+<td>4567890123456789012345678901234567890123456789012345678901234567</td>
+</tr>
+</table>>]
+n345082[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#c3f8b6">Bloque Archivo</td></tr>
+<tr>
+<td>8901234567890123456789012345678901234567890123456789012345678901</td>
+</tr>
+</table>>]
+n345146[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#c3f8b6">Bloque Archivo</td></tr>
+<tr>
+<td>2345678901234567890123456789012345678901234567890123456789012345</td>
+</tr>
+</table>>]
+n345210[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#c3f8b6">Bloque Archivo</td></tr>
+<tr>
+<td>6789012345678901234567890123456789012345678901234567890123456789</td>
+</tr>
+</table>>]
+n345274[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#c3f8b6">Bloque Archivo</td></tr>
+<tr>
+<td>0123456789012345678901234567890123456789012345678901234567890123</td>
+</tr>
+</table>>]
+n345338[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#c3f8b6">Bloque Archivo</td></tr>
+<tr>
+<td>4567890123456789012345678901234567890123456789012345678901234567</td>
+</tr>
+</table>>]
+n345402[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#c3f8b6">Bloque Archivo</td></tr>
+<tr>
+<td>8901234567890123456789012345678901234567890123456789012345678901</td>
+</tr>
+</table>>]
+n345466[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#c3f8b6">Bloque Archivo</td></tr>
+<tr>
+<td>2345678901234567890123456789012345678901234567890123456789012345</td>
+</tr>
+</table>>]
+n345530[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#c3f8b6">Bloque Archivo</td></tr>
+<tr>
+<td>6789012345678901234567890123456789012345678901234567890123456789</td>
+</tr>
+</table>>]
+n345594[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#c3f8b6">Bloque Archivo</td></tr>
+<tr>
+<td>0123456789012345678901234567890123456789012345678901234567890123</td>
+</tr>
+</table>>]
+n309308[label=<<table><tr><td colspan="2" bgcolor="#376ef3">INODO 5</td></tr>
+<tr>
+<td>i_uid</td>
+<td>1</td>
+</tr>
+<tr>
+<td>i_gid</td>
+<td>1</td>
+</tr>
+<tr>
+<td>i_s</td>
+<td>123</td>
+</tr>
+<tr>
+<td>i_atime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>i_ctime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>i_mtime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>ap0</td>
+<td port="345658">345658</td>
+</tr>
+<tr>
+<td>ap1</td>
+<td port="345722">345722</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_type</td>
+<td>1</td>
+</tr>
+<tr>
+<td>i_perm</td>
+<td>664</td>
+</tr>
+</table>>]
+n345658[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#c3f8b6">Bloque Archivo</td></tr>
+<tr>
+<td>calificacion mia 20230123456789012345678901234567890123456789012</td>
+</tr>
+</table>>]
+n345722[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#c3f8b6">Bloque Archivo</td></tr>
+<tr>
+<td>34567890123456789012345678901234567890123456789012345678901</td>
+</tr>
+</table>>]
+n309413[label=<<table><tr><td colspan="2" bgcolor="#376ef3">INODO 6</td></tr>
+<tr>
+<td>i_uid</td>
+<td>1</td>
+</tr>
+<tr>
+<td>i_gid</td>
+<td>1</td>
+</tr>
+<tr>
+<td>i_s</td>
+<td>0</td>
+</tr>
+<tr>
+<td>i_atime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>i_ctime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>i_mtime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>ap0</td>
+<td port="345850">345850</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_type</td>
+<td>0</td>
+</tr>
+<tr>
+<td>i_perm</td>
+<td>664</td>
+</tr>
+</table>>]
+n345850[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#f34037">Bloque Carpeta</td></tr>
+<tr>
+<td>.</td>
+<td port="309413">309413</td>
+</tr>
+<tr>
+<td>..</td>
+<td port="309098">309098</td>
+</tr>
+<tr>
+<td>Laura</td>
+<td port="309518">309518</td>
+</tr>
+<tr>
+<td></td>
+<td port="-1">-1</td>
+</tr>
+</table>>]
+n309518[label=<<table><tr><td colspan="2" bgcolor="#376ef3">INODO 7</td></tr>
+<tr>
+<td>i_uid</td>
+<td>1</td>
+</tr>
+<tr>
+<td>i_gid</td>
+<td>1</td>
+</tr>
+<tr>
+<td>i_s</td>
+<td>0</td>
+</tr>
+<tr>
+<td>i_atime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>i_ctime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>i_mtime</td>
+<td>2023-04-05 11:39:15 -0600 CST</td>
+</tr>
+<tr>
+<td>ap0</td>
+<td port="345914">345914</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_block</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>i_type</td>
+<td>0</td>
+</tr>
+<tr>
+<td>i_perm</td>
+<td>664</td>
+</tr>
+</table>>]
+n345914[label=<<table>
+<tr>
+<td colspan="2" bgcolor="#f34037">Bloque Carpeta</td></tr>
+<tr>
+<td>.</td>
+<td port="309518">309518</td>
+</tr>
+<tr>
+<td>..</td>
+<td port="309413">309413</td>
+</tr>
+<tr>
+<td></td>
+<td port="-1">-1</td>
+</tr>
+<tr>
+<td></td>
+<td port="-1">-1</td>
+</tr>
+</table>>]
+n308783 -> n344378
+n344378 -> n308783
+n344378 -> n308783
+n344378 -> n308888
+n344378 -> n308993
+n308888 -> n344442
+n308993 -> n344506
+n344506 -> n308993
+n344506 -> n308783
+n344506 -> n309098
+n309098 -> n344570
+n309098 -> n345786
+n344570 -> n309098
+n344570 -> n308993
+n344570 -> n309203
+n344570 -> n309308
+n345786 -> n309413
+n309203 -> n344634
+n309203 -> n344698
+n309203 -> n344762
+n309203 -> n344826
+n309203 -> n344890
+n309203 -> n344954
+n309203 -> n345018
+n309203 -> n345082
+n309203 -> n345146
+n309203 -> n345210
+n309203 -> n345274
+n309203 -> n345338
+n309203 -> n345402
+n309203 -> n345466
+n309203 -> n345530
+n309203 -> n345594
+n309308 -> n345658
+n309308 -> n345722
+n309413 -> n345850
+n345850 -> n309413
+n345850 -> n309098
+n345850 -> n309518
+n309518 -> n345914
+n345914 -> n309518
+n345914 -> n309413
+}
