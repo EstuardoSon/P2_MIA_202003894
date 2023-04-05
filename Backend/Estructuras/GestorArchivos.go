@@ -88,8 +88,8 @@ func (this *GestorArchivos) Mkfile(path_fichero, path_archivo string, r bool, si
 						if err != nil {
 							return err.Error()
 						}
-						text := string(file)
-						fmt.Println(text)
+						textoArchivo += string(file)
+						fmt.Println(textoArchivo)
 					}
 				}
 				if size >= 0 {
@@ -296,14 +296,14 @@ func (this *GestorArchivos) crearArchivo(archivo *os.File, textoArchivo string, 
 	tiArchivo.I_type = '1'
 	tiArchivo.I_perm = I32toByte(664)
 
-	archivo.Seek(int64(BytetoI32(sb.S_inode_start[:])+(BytetoI32(sb.S_first_ino[:])+int32(binary.Size(tiArchivo)))), 0)
+	archivo.Seek(int64(BytetoI32(sb.S_inode_start[:])+(BytetoI32(sb.S_first_ino[:])*int32(binary.Size(tiArchivo)))), 0)
 	bs.Reset()
 	binary.Write(&bs, binary.BigEndian, tiArchivo)
 	_, _ = archivo.Write(bs.Bytes())
 
-	WriteInFile(textoArchivo, sb, inicioSB, int(BytetoI32(sb.S_inode_start[:])+(BytetoI32(sb.S_first_ino[:])+int32(binary.Size(tiArchivo)))), archivo)
+	WriteInFile(textoArchivo, sb, inicioSB, int(BytetoI32(sb.S_inode_start[:])+(BytetoI32(sb.S_first_ino[:])*int32(binary.Size(tiArchivo)))), archivo)
 
-	*ubicacion = int(BytetoI32(sb.S_inode_start[:]) + (BytetoI32(sb.S_first_ino[:]) + int32(binary.Size(tiArchivo))))
+	*ubicacion = int(BytetoI32(sb.S_inode_start[:]) + (BytetoI32(sb.S_first_ino[:]) * int32(binary.Size(tiArchivo))))
 }
 
 // Buscar un espacio libre en carpeta para crear un archivo
@@ -330,8 +330,11 @@ func (this *GestorArchivos) buscarEspacioArchivo(ti *TablaInodo, inicioInodo int
 								bc.B_content[j].B_name[a] = byte(char)
 							}
 							bc.B_content[j].B_inodo = I32toByte(int32(int(BytetoI32(sb.S_inode_start[:])) + (int(BytetoI32(sb.S_first_ino[:])) * binary.Size(ti))))
+							fmt.Println(int32(int(BytetoI32(sb.S_inode_start[:])) + (int(BytetoI32(sb.S_first_ino[:])) * binary.Size(ti))))
 
 							this.crearArchivo(archivo, textoArchivo, sb, inicioSB, &ubicacion)
+							fmt.Println(ubicacion)
+
 							bandera = false
 							break
 						} else {
@@ -360,7 +363,9 @@ func (this *GestorArchivos) buscarEspacioArchivo(ti *TablaInodo, inicioInodo int
 
 					sb.S_first_ino = I32toByte(int32(BuscarBM_i(sb, archivo)))
 					bc = BloqueCarpeta{}
+
 					bc.B_content[0].B_inodo = I32toByte(BytetoI32(sb.S_inode_start[:]) + (BytetoI32(sb.S_first_ino[:]) * int32(binary.Size(ti))))
+					fmt.Println(BytetoI32(sb.S_inode_start[:]) + (BytetoI32(sb.S_first_ino[:]) * int32(binary.Size(ti))))
 					for a, char := range nombre {
 						bc.B_content[0].B_name[a] = byte(char)
 					}
@@ -374,6 +379,8 @@ func (this *GestorArchivos) buscarEspacioArchivo(ti *TablaInodo, inicioInodo int
 					_, _ = archivo.Write(bs.Bytes())
 
 					this.crearArchivo(archivo, textoArchivo, sb, inicioSB, &ubicacion)
+					fmt.Println(ubicacion)
+
 					bandera = false
 				} else {
 					bandera = false

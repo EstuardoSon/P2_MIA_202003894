@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 )
 
@@ -26,7 +27,7 @@ func (this *Reporte) GenerarReporte() string {
 	} else if this.Name == "tree" {
 		//return this.reporteTree()
 	} else if this.Name == "file" {
-		//return this.reporteFile()
+		return this.reporteFile()
 	}
 	return "No fue posible identificar el reporte deseado"
 }
@@ -240,7 +241,6 @@ func (this *Reporte) reporteSb() string {
 					}
 				}
 
-				dot = ""
 				if verificar {
 					_, n_reporte := DivPath(this.Path)
 					archivoReporte, _ := os.OpenFile("./Reportes/DOTS/reporteSb.dot", os.O_RDWR|os.O_CREATE, 0777)
@@ -330,4 +330,151 @@ func (this *Reporte) reporteSb() string {
 	}
 
 	return "Ingreso un valor erroneo en Path"
+}
+
+func (this *Reporte) buscarFichero(ficheros *[]string, sb *SuperBloque, inicioSB, inicioInodo int, archivo *os.File) int {
+	ti := TablaInodo{}
+
+	//Obtener Inodo
+	archivo.Seek(int64(inicioInodo), 0)
+	binary.Read(extraerStruct(archivo, binary.Size(ti)), binary.BigEndian, &ti)
+
+	if len(*ficheros) > 0 {
+		if ti.I_type == '0' {
+			fichero := (*ficheros)[0]
+			*ficheros = (*ficheros)[1:]
+			ubicacion := this.buscarEnCarpeta(&ti, inicioInodo, archivo, fichero)
+
+			if ubicacion != -1 {
+				return this.buscarFichero(ficheros, sb, inicioSB, ubicacion, archivo)
+
+			} else {
+				return -1
+			}
+		} else {
+			return -1
+		}
+	} else {
+		return inicioInodo
+	}
+}
+
+// Buscar una carpeta o archivo en una carpeta padre
+func (this *Reporte) buscarEnCarpeta(ti *TablaInodo, inicioInodo int, archivo *os.File, nombre string) int {
+	bc := BloqueCarpeta{}
+	ubicacion := -1
+	for i := 0; i < 16; i++ {
+		if BytetoI32(ti.I_block[i][:]) != -1 {
+			archivo.Seek(int64(BytetoI32(ti.I_block[i][:])), 0)
+			binary.Read(extraerStruct(archivo, binary.Size(bc)), binary.BigEndian, &bc)
+			for j := 0; j < 4; j++ {
+				if string(bytes.Trim(bc.B_content[j].B_name[:], "\000")) == nombre {
+					ubicacion = int(BytetoI32(bc.B_content[j].B_inodo[:]))
+				}
+			}
+
+		}
+	}
+	ti.I_atime = I64toByte(time.Now().Unix())
+	archivo.Seek(int64(inicioInodo), 0)
+
+	var bs bytes.Buffer
+	binary.Write(&bs, binary.BigEndian, ti)
+	_, _ = archivo.Write(bs.Bytes())
+
+	return ubicacion
+}
+
+// Generar Reporte File
+func (this *Reporte) reporteFile() string {
+	if this.Path != "" && this.Ruta != "" {
+		nodo := this.ListaMount.Buscar(this.Id)
+
+		if nodo != nil {
+			archivoDisco, err := os.OpenFile(nodo.Fichero+"/"+nodo.Nombre_disco, os.O_RDONLY, 0777)
+
+			if err == nil {
+				//Creacion de los ficheros y dando permisos
+				mbr := MBR{}
+				dot := ""
+				binary.Read(extraerStruct(archivoDisco, binary.Size(mbr)), binary.BigEndian, &mbr)
+
+				sb := SuperBloque{}
+				inicioSB := -1
+				res := ""
+				for i := 0; i < 4; i++ {
+					if string(bytes.Trim(mbr.Mbr_partition[i].Part_name[:], "\000")) == nodo.Nombre_particion &&
+						nodo.Part_type == mbr.Mbr_partition[i].Part_type {
+						if mbr.Mbr_partition[i].Part_status == '2' {
+							archivoDisco.Seek(int64(BytetoI32(mbr.Mbr_partition[i].Part_start[:])), 0)
+							binary.Read(extraerStruct(archivoDisco, binary.Size(sb)), binary.BigEndian, &sb)
+							inicioSB = int(BytetoI32(mbr.Mbr_partition[i].Part_start[:]))
+							break
+						} else if mbr.Mbr_partition[i].Part_status == '1' {
+							res = "No se ha aplicado el comando MKFS a la Particion"
+							goto t0
+						} else if mbr.Mbr_partition[i].Part_status == '0' {
+							res = "No se encontro la Particion en el Disco... Desmontando la Praticion"
+							this.ListaMount.Eliminar(nodo.IdCompleto)
+							goto t0
+						}
+					} else if mbr.Mbr_partition[i].Part_type == 'E' &&
+						nodo.Part_type == 'L' {
+						ebr := EBR{}
+						archivoDisco.Seek(int64(nodo.Part_start), 0)
+						binary.Read(extraerStruct(archivoDisco, binary.Size(ebr)), binary.BigEndian, &ebr)
+
+						if string(bytes.Trim(ebr.Part_name[:], "\000")) == nodo.Nombre_particion {
+							if ebr.Part_status == '2' {
+								archivoDisco.Seek(int64(BytetoI32(ebr.Part_start[:])+int32(binary.Size(ebr))), 0)
+								binary.Read(extraerStruct(archivoDisco, binary.Size(sb)), binary.BigEndian, &sb)
+								inicioSB = nodo.Part_start + binary.Size(ebr)
+								break
+							} else if ebr.Part_status == '1' {
+								res = "No se ha aplicado el comando MKFS a la Particion"
+								goto t0
+							} else if ebr.Part_status == '0' {
+								res = "No se encontro la Particion en el Disco... Desmontando la Praticion"
+								this.ListaMount.Eliminar(nodo.IdCompleto)
+								goto t0
+							}
+						}
+					}
+				}
+
+				dot = ""
+
+				if inicioSB != -1 {
+					f_ruta, n_ruta := DivPath(this.Ruta)
+					archivoReporte, _ := os.OpenFile("./Reportes/"+nodo.IdCompleto+"_"+n_ruta, os.O_RDWR|os.O_CREATE, 0777)
+
+					ficheros := strings.Split(f_ruta[1:], "/")
+					if n_ruta != "" {
+						ficheros = append(ficheros, n_ruta)
+					}
+
+					ubicacion := this.buscarFichero(&ficheros, &sb, inicioSB, int(BytetoI32(sb.S_inode_start[:])), archivoDisco)
+
+					if ubicacion != -1 {
+						dot += GetContentF(ubicacion, archivoDisco)
+					}
+
+					_, _ = archivoReporte.WriteString(dot)
+
+					archivoReporte.Close()
+					res = "Reporte de File generado con Exito"
+				} else {
+					this.ListaMount.Eliminar(nodo.Id)
+					res = "La Particion no exite dentro del disco... Desmontando la particion"
+				}
+			t0:
+				archivoDisco.Close()
+				return res
+			} else {
+				this.ListaMount.Eliminar(this.Id)
+				return "No fue posible encontrar el Disco... Desmontando particion"
+			}
+		}
+	}
+	return "Ingreso valores invalidos en Path o Ruta"
 }
