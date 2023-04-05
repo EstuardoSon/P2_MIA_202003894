@@ -115,6 +115,15 @@ func DivPath(path string) (directorios, nombre string) {
 	return "", path
 }
 
+func GetExtension(nombre string) string {
+	pos := strings.LastIndex(nombre, ".")
+
+	if pos != -1 {
+		return nombre[pos+1:]
+	}
+	return "txt"
+}
+
 func extraerStruct(file *os.File, number int) *bytes.Buffer {
 	data := make([]byte, number)
 	_, err := file.Read(data)

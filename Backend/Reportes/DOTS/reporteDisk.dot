@@ -1,0 +1,5 @@
+digraph G {
+node[shape=none]
+node[shape=none]
+start[label=<<table><tr><td rowspan="2">MBR</td><td rowspan="2">Particion1 <br/>10.00 %</td><td rowspan="2">EXTENDIDA</td><td rowspan="2">EBR <br/>Particion3</td><td rowspan="2">Logica <br/>3.33 %</td><td rowspan="2">EBR <br/>Particion4</td><td rowspan="2">Logica <br/>3.33 %</td><td rowspan="2">Libre <br/>3.33 %</td><td rowspan="2">FIN EXTENDIDA</td><td rowspan="2">LIBRE <br/>79.99 %</td></tr></table>>];
+}

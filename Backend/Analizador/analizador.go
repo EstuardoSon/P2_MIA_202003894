@@ -361,7 +361,8 @@ func (analizador *Analizador) Analizar() string {
 					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			return fmt.Sprintf("MKDIR %s %t \n", path, r)
+			gestor := estructuras.GestorArchivos{ListaMount: analizador.ListaMount, Usuario: analizador.Usuario}
+			return gestor.Mkdir(path, r)
 		} else if nInst == 14 { //Pause
 			analizador.Comando = strings.TrimSpace(analizador.Comando[5:])
 
@@ -389,7 +390,8 @@ func (analizador *Analizador) Analizar() string {
 					return analizador.Comando + " Ingreso un parametro no reconocido"
 				}
 			}
-			return fmt.Sprintf("REP %s %s %s %s \n", name, path, id, ruta)
+			reportes := estructuras.Reporte{ListaMount: analizador.ListaMount, Path: path, Name: name, Id: id, Ruta: ruta}
+			return reportes.GenerarReporte()
 		}
 		return "Esto no deberia pasar :v"
 	}

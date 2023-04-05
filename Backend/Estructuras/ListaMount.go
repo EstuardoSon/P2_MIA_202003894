@@ -458,7 +458,7 @@ func (this *ListaMount) Mkfs(id string, tipo string) string {
 						archivo.Seek(int64(BytetoI32(ebr.Part_start[:])+int32(binary.Size(ebr))), 0)
 						var vacio byte
 						vacio = '\000'
-						for i := 0; i < int(BytetoI32(ebr.Part_start[:])-int32(binary.Size(ebr))); i++ {
+						for i := 0; i < int(BytetoI32(ebr.Part_size[:])-int32(binary.Size(ebr))); i++ {
 							var bs bytes.Buffer
 							binary.Write(&bs, binary.BigEndian, vacio)
 							_, _ = archivo.Write(bs.Bytes())

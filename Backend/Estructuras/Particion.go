@@ -219,7 +219,7 @@ func verificarEspacioPE(p *Partition, nextEBR *EBR, path, name string, s int, f 
 	}
 	nextEBR.Part_status = '1'
 
-	if int(BytetoI32(p.Part_size[:])) >= s {
+	if int((BytetoI32(p.Part_size[:])+BytetoI32(p.Part_start[:]))-(BytetoI32(ebrAux.Part_start[:])+BytetoI32(ebrAux.Part_size[:]))) >= s {
 		ebrAux.Part_next = nextEBR.Part_start
 		file.Seek(int64(BytetoI32(ebrAux.Part_start[:])), 0)
 

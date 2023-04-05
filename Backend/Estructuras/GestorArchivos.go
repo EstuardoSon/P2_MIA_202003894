@@ -359,6 +359,7 @@ func (this *GestorArchivos) buscarEspacioArchivo(ti *TablaInodo, inicioInodo int
 					sb.S_free_blocks_count = I32toByte(BytetoI32(sb.S_free_blocks_count[:]) - int32(1))
 
 					sb.S_first_ino = I32toByte(int32(BuscarBM_i(sb, archivo)))
+					bc = BloqueCarpeta{}
 					bc.B_content[0].B_inodo = I32toByte(BytetoI32(sb.S_inode_start[:]) + (BytetoI32(sb.S_first_ino[:]) * int32(binary.Size(ti))))
 					for a, char := range nombre {
 						bc.B_content[0].B_name[a] = byte(char)
@@ -443,6 +444,7 @@ func (this *GestorArchivos) buscarEspacioCarpeta(ti *TablaInodo, inicioInodo int
 			} else if ubicacion == -1 && bandera {
 				if int(BytetoI32(sb.S_free_inodes_count[:])) > 0 && int(BytetoI32(sb.S_free_blocks_count[:])) > 1 {
 					// Bloque carpeta
+					// Bloque carpeta
 					sb.S_first_blo = I32toByte(int32(BuscarBM_b(sb, archivo)))
 					ti.I_block[i] = I32toByte(BytetoI32(sb.S_block_start[:]) + (BytetoI32(sb.S_first_blo[:]) * int32(binary.Size(bc))))
 					archivo.Seek(int64(BytetoI32(sb.S_bm_block_start[:])+BytetoI32(sb.S_first_blo[:])), 0)
@@ -454,13 +456,14 @@ func (this *GestorArchivos) buscarEspacioCarpeta(ti *TablaInodo, inicioInodo int
 					sb.S_free_blocks_count = I32toByte(BytetoI32(sb.S_free_blocks_count[:]) - int32(1))
 
 					sb.S_first_ino = I32toByte(int32(BuscarBM_i(sb, archivo)))
+
+					bc = BloqueCarpeta{}
 					bc.B_content[0].B_inodo = I32toByte(BytetoI32(sb.S_inode_start[:]) + (BytetoI32(sb.S_first_ino[:]) * int32(binary.Size(ti))))
-					sb.S_first_ino = I32toByte(int32(BuscarBM_i(sb, archivo)))
 					for a, char := range nombre {
 						bc.B_content[0].B_name[a] = byte(char)
 					}
 					for j := 1; j < 4; j++ {
-						bc.B_content[j].B_inodo = I32toByte(int32(-1))
+						bc.B_content[j].B_inodo = I32toByte(-1)
 					}
 
 					archivo.Seek(int64(BytetoI32(ti.I_block[i][:])), 0)
@@ -551,4 +554,157 @@ func (this *GestorArchivos) crearCarpeta(archivo *os.File, sb *SuperBloque, ubic
 	_, _ = archivo.Write(bs.Bytes())
 
 	*ubicacion = int(BytetoI32(sb.S_inode_start[:]) + (BytetoI32(sb.S_first_ino[:]) * int32(binary.Size(tCarpetaN))))
+}
+
+func (this *GestorArchivos) Mkdir(path string, r bool) string {
+	if this.Usuario.NombreG == "" && this.Usuario.NombreU == "" {
+		return "No existe una sesion iniciada"
+	}
+	nodo := this.ListaMount.Buscar(this.Usuario.IdParticion)
+	if nodo != nil {
+		var archivo *os.File
+		archivo, _ = os.OpenFile(nodo.Fichero+"/"+nodo.Nombre_disco, os.O_RDWR, 0777)
+
+		if archivo != nil {
+			inicioSB := 0
+			sb := SuperBloque{}
+
+			//Particion Primaria
+			if nodo.Part_type == 'P' {
+				mbr := MBR{}
+				archivo.Seek(0, 0)
+				binary.Read(extraerStruct(archivo, binary.Size(mbr)), binary.BigEndian, &mbr)
+				var i int
+
+				//Verificar la existencia de la particion
+				for i = 0; i < 4; i++ {
+					if string(bytes.Trim(mbr.Mbr_partition[i].Part_name[:], "\000")) == nodo.Nombre_particion {
+						break
+					}
+				}
+
+				//Error de posicion no encontrada
+				if i == 5 {
+					this.ListaMount.Eliminar(nodo.IdCompleto)
+					archivo.Close()
+					return "No fue posible encontrar la particion en el disco"
+				} else { //Posicion si Encontrada
+					if mbr.Mbr_partition[i].Part_status != '2' {
+						archivo.Close()
+						return "No se ha aplicado el comando mkfs a la particion"
+					}
+					//Recuperar la informacion del superbloque
+					archivo.Seek(int64(BytetoI32(mbr.Mbr_partition[i].Part_start[:])), 0)
+					inicioSB = int(BytetoI32(mbr.Mbr_partition[i].Part_start[:]))
+					binary.Read(extraerStruct(archivo, binary.Size(sb)), binary.BigEndian, &sb)
+				}
+			} else if nodo.Part_type == 'L' { //Particiones Logicas
+				ebr := EBR{}
+				archivo.Seek(int64(nodo.Part_start), 0)
+				binary.Read(extraerStruct(archivo, binary.Size(ebr)), binary.BigEndian, &ebr)
+				if ebr.Part_status != '2' {
+					archivo.Close()
+					return "No se ha aplicado el comando mkfs a la particion"
+				}
+				binary.Read(extraerStruct(archivo, binary.Size(sb)), binary.BigEndian, &sb)
+				inicioSB = nodo.Part_start + binary.Size(ebr)
+			}
+
+			res := ""
+			match, _ := regexp.MatchString("(\\/)(([a-zA-Z0-9_ñÑáéíóúÁÉÍÓÚ ]+(\\/))*[a-zA-Z0-9_ñÑáéíóúÁÉÍÓÚ ]+)?", path)
+			if match {
+				path = path[1:]
+				ficheros := strings.Split(path, "/")
+				newCarpeta := ficheros[len(ficheros)-1]
+				ficheros = ficheros[:len(ficheros)-1]
+
+				res = this.buscarficheroMkdir(ficheros, newCarpeta, r, &sb, inicioSB, int(BytetoI32(sb.S_inode_start[:])), archivo)
+			}
+
+			archivo.Close()
+			return res
+		} else {
+			this.ListaMount.Eliminar(nodo.IdCompleto)
+			return "No fue posible encontrar el disco de la particion"
+		}
+	}
+	return "No fue posible encontrar una paticion montada con el ID introducido"
+}
+
+// Realizar acciones del comando mkdir
+func (this *GestorArchivos) buscarficheroMkdir(ficheros []string, newCarpeta string, r bool, sb *SuperBloque, inicioSB, inicioInodo int, archivo *os.File) string {
+	ti := TablaInodo{}
+
+	//Obtener Inodo
+	archivo.Seek(int64(inicioInodo), 0)
+	binary.Read(extraerStruct(archivo, binary.Size(ti)), binary.BigEndian, &ti)
+	escritura := false
+	lectura := false
+	this.verificarPermisos(&ti, &escritura, &lectura)
+
+	if len(ficheros) > 0 {
+		if ti.I_type == '0' {
+			fichero := ficheros[0]
+			ficheros := ficheros[1:]
+			ubicacion := this.buscarEnCarpeta(&ti, inicioInodo, archivo, fichero)
+
+			if ubicacion != -1 {
+				return this.buscarficheroMkdir(ficheros, newCarpeta, r, sb, inicioSB, ubicacion, archivo)
+
+			} else if ubicacion == -1 && r {
+				if escritura {
+					ubicacion = this.buscarEspacioCarpeta(&ti, inicioInodo, archivo, fichero, sb, inicioSB)
+					if ubicacion != -1 {
+						res := this.buscarficheroMkdir(ficheros, newCarpeta, r, sb, inicioSB, ubicacion, archivo)
+
+						ti.I_mtime = I64toByte(time.Now().Unix())
+						archivo.Seek(int64(inicioInodo), 0)
+
+						var bs bytes.Buffer
+						binary.Write(&bs, binary.BigEndian, ti)
+						_, _ = archivo.Write(bs.Bytes())
+
+						return res
+					} else {
+						return "No fu posible la creacion de la carpeta"
+					}
+				} else {
+					return "El usuario no tiene permisos de Escritura"
+				}
+			} else {
+				return "No se encontro el fichero" + fichero
+			}
+		} else {
+			return "El inodo no corresponde a una carpeta"
+		}
+	} else {
+		if ti.I_type == '0' {
+			ubicacion := this.buscarEnCarpeta(&ti, inicioInodo, archivo, newCarpeta)
+
+			if ubicacion != -1 {
+				return "La carpeta ya existe"
+
+			} else {
+				if escritura {
+					ubicacion = this.buscarEspacioCarpeta(&ti, inicioInodo, archivo, newCarpeta, sb, inicioSB)
+					if ubicacion != -1 {
+						ti.I_mtime = I64toByte(time.Now().Unix())
+						archivo.Seek(int64(inicioInodo), 0)
+
+						var bs bytes.Buffer
+						binary.Write(&bs, binary.BigEndian, ti)
+						_, _ = archivo.Write(bs.Bytes())
+
+						return "Fichero Creado: " + newCarpeta
+					} else {
+						return "No fue posible crear la Carpeta"
+					}
+				} else {
+					return "El usuario no tiene permisos de Escritura"
+				}
+			}
+		} else {
+			return "El inodo no corresponde a una carpeta"
+		}
+	}
 }
