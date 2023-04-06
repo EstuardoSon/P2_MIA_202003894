@@ -17,8 +17,27 @@ type Respuesta struct {
 	Res string
 }
 
+type RespuestaRe struct {
+	Res []string
+}
+
 type ComandoJson struct {
 	Comando string
+}
+
+type Login struct {
+	Id   string
+	User string
+	Pass string
+}
+
+type Archivo struct {
+	Uri string
+}
+
+type ResLogin struct {
+	Archivos []Archivo
+	Res      bool
 }
 
 var listaMount *estructuras.ListaMount
@@ -32,22 +51,42 @@ func find(cadena string, substring string) int {
 	return i
 }
 
-func index(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		r := make([]string, 0)
-		reportes, er := os.ReadDir("Reportes/")
-		if er != nil {
-			fmt.Println(er)
+func login(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		operacion := &Login{}
+		err := json.NewDecoder(r.Body).Decode(operacion)
+		if err != nil {
+			fmt.Println(err)
 		}
-		for _, reporte := range reportes {
-			i := find(reporte.Name(), ".")
-			if i < len(reporte.Name()) {
-				r = append(r, reporte.Name())
-			}
 
+		log := estructuras.AdminUsuario{ListaMount: listaMount, Usuario: usuario}
+
+		ra := make([]Archivo, 0)
+		if log.LoginEspecial(operacion.User, operacion.Pass, operacion.Id) == "Sesion Iniciada" {
+			reportes, er := os.ReadDir("Reportes/")
+			if er != nil {
+				fmt.Println(er)
+			}
+			for _, reporte := range reportes {
+				i := find(reporte.Name(), ".")
+				if i < len(reporte.Name()) {
+					if strings.Index(reporte.Name(), operacion.Id) != -1 {
+						ra = append(ra, Archivo{Uri: "http://localhost:8080/Reportes/" + reporte.Name()})
+					}
+				}
+
+			}
+			res := ResLogin{Res: true, Archivos: ra}
+			json.NewEncoder(w).Encode(res)
+		} else {
+			res := ResLogin{Res: false, Archivos: ra}
+			json.NewEncoder(w).Encode(res)
 		}
-		json.NewEncoder(w).Encode(r)
-	} else if r.Method == "POST" {
+	}
+}
+
+func index(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
 		operacion := &ComandoJson{}
 		err := json.NewDecoder(r.Body).Decode(operacion)
 
@@ -77,6 +116,7 @@ func main() {
 
 	server := mux.NewRouter()
 	server.HandleFunc("/", index)
+	server.HandleFunc("/Login", login)
 
 	handler := cors.Default().Handler(server)
 
