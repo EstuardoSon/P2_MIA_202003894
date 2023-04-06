@@ -170,7 +170,7 @@ func (this *Reporte) reporteDisk() string {
 				archivoDisco.Close()
 				archivoReporte.Close()
 
-				_, err := exec.Command("dot", "-T"+GetExtension(n_reporte), "Reportes/DOTS/reporteDisk.dot", "-o", "Reportes/"+nodo.IdCompleto+"_DISK."+GetExtension(n_reporte)).Output()
+				_, err := exec.Command("dot", "-T"+GetExtension(n_reporte), "Reportes/DOTS/reporteDisk.dot", "-o", "Reportes/"+nodo.IdCompleto+"_"+n_reporte).Output()
 				if err != nil {
 					return "No fue posible completar la creacion del Reporte DISK"
 				}
@@ -311,7 +311,7 @@ func (this *Reporte) reporteSb() string {
 					_, _ = archivoReporte.WriteString(dot)
 
 					archivoReporte.Close()
-					_, err := exec.Command("dot", "-T"+GetExtension(n_reporte), "Reportes/DOTS/reporteSb.dot", "-o", "Reportes/"+nodo.IdCompleto+"_SB."+GetExtension(n_reporte)).Output()
+					_, err := exec.Command("dot", "-T"+GetExtension(n_reporte), "Reportes/DOTS/reporteSb.dot", "-o", "Reportes/"+nodo.IdCompleto+"_"+n_reporte).Output()
 					if err != nil {
 						res = "No fue posible completar la creacion del Reporte SB"
 					} else {
@@ -448,7 +448,8 @@ func (this *Reporte) reporteFile() string {
 
 				if inicioSB != -1 {
 					f_ruta, n_ruta := DivPath(this.Ruta)
-					archivoReporte, _ := os.OpenFile("./Reportes/"+nodo.IdCompleto+"_"+n_ruta, os.O_RDWR|os.O_CREATE, 0777)
+					_, n_archivo := DivPath(this.Path)
+					archivoReporte, _ := os.OpenFile("./Reportes/"+nodo.IdCompleto+"_"+n_archivo, os.O_RDWR|os.O_CREATE, 0777)
 
 					ficheros := strings.Split(f_ruta[1:], "/")
 					if n_ruta != "" {
@@ -578,7 +579,7 @@ func (this *Reporte) reporteTree() string {
 					_, _ = archivoReporte.WriteString(dot)
 
 					archivoReporte.Close()
-					_, err := exec.Command("dot", "-T"+GetExtension(n_reporte), "Reportes/DOTS/reporteTree.dot", "-o", "Reportes/"+nodo.IdCompleto+"_Tree."+GetExtension(n_reporte)).Output()
+					_, err := exec.Command("dot", "-T"+GetExtension(n_reporte), "Reportes/DOTS/reporteTree.dot", "-o", "Reportes/"+nodo.IdCompleto+"_"+n_reporte).Output()
 					if err != nil {
 						res = "No fue posible completar la creacion del Reporte Tree"
 					} else {
