@@ -128,6 +128,7 @@ func (this *AdminUsuario) Login(usuario, password, id string) string {
 				return "No fue posible encontrar el disco de la particion"
 			}
 		}
+		return "No existe una particion montada con el ID ingresado"
 	}
 	return "Ya existe una sesion iniciada"
 }

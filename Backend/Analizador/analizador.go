@@ -207,7 +207,7 @@ func (analizador *Analizador) Analizar() string {
 				}
 			}
 			directorios, nombre := estructuras.DivPath(path)
-			nuevo := estructuras.NodoMount{Fichero: directorios, Nombre_disco: nombre, IdCompleto: id, Nombre_particion: name}
+			nuevo := estructuras.NodoMount{Fichero: directorios, Nombre_disco: nombre, Nombre_particion: name}
 
 			return analizador.ListaMount.Agregar(&nuevo)
 		} else if nInst == 5 { //Mkfs

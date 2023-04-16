@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"math"
+	"math/rand"
 	"os"
 	"regexp"
 	"strconv"
@@ -18,31 +19,25 @@ type ListaMount struct {
 
 // Obtener el numero y nombre del ID
 func (this *ListaMount) obtenerIdNumero(nuevo *NodoMount) {
-	valor := nuevo.IdCompleto[2:]
+	valor := nuevo.Nombre_disco[:]
 	var numero string
 
 	var i int
 	for i = 0; i < len(valor); i++ {
 		if valor[i] >= 48 && valor[i] <= 57 {
 			numero += string(valor[i])
-		} else {
-			break
 		}
 	}
 
-	nuevo.Id = valor[i:]
 	nuevo.Numero, _ = strconv.Atoi(numero[:])
 }
 
-// Verificar ID completo
-func (this *ListaMount) verificarID(nuevo *NodoMount) (bool, string) {
-	match, _ := regexp.MatchString("(94)[0-9]+[a-zA-ZñÑ]+", nuevo.IdCompleto)
-	if match {
-		this.obtenerIdNumero(nuevo)
-		return true, ""
-	}
-
-	return false, "El ID no cumple con los requisitos minimos 94 + Num + Letra"
+// generar ID
+func (this *ListaMount) generarID(nuevo *NodoMount) {
+	rand.Seed(time.Now().UnixNano())
+	this.obtenerIdNumero(nuevo)
+	nuevo.Id = string(byte(rand.Intn(26) + 'a'))
+	nuevo.IdCompleto = "94" + strconv.Itoa(nuevo.Numero) + nuevo.Id
 }
 
 // Verificar que la particion no este actualmente montada
@@ -50,7 +45,8 @@ func (this *ListaMount) verificarLista(nuevo *NodoMount) (bool, string) {
 	aux := this.Inicio
 	for aux != nil {
 		if aux.IdCompleto == nuevo.IdCompleto {
-			return false, "El ID ya esta en uso"
+			this.generarID(nuevo)
+			return this.verificarLista(nuevo)
 		} else if aux.Fichero == nuevo.Fichero && aux.Nombre_disco == nuevo.Nombre_disco && aux.Nombre_particion == nuevo.Nombre_particion {
 			return false, "La particion ya se encuentra montada"
 		}
@@ -184,7 +180,7 @@ func (this *ListaMount) imprimirLista() string {
 	aux := this.Inicio
 	var lista string
 	for aux != nil {
-		lista += fmt.Sprintf("Id: %s Nombre: %s Numero: %d \n", aux.IdCompleto, aux.Id, aux.Numero)
+		lista += fmt.Sprintf("Id: %s Nombre: %s Numero: %d Particion:%s Disco:%s\n", aux.IdCompleto, aux.Id, aux.Numero, aux.Nombre_particion, aux.Nombre_disco)
 		aux = aux.Next
 	}
 
@@ -193,25 +189,24 @@ func (this *ListaMount) imprimirLista() string {
 
 // Agregar Nodos a la lista
 func (this *ListaMount) Agregar(nuevo *NodoMount) string {
-	verificar, err := this.verificarID(nuevo)
+	this.generarID(nuevo)
+	verificar, err := this.verificarLista(nuevo)
 	if verificar {
-		verificar, err = this.verificarLista(nuevo)
+		verificar, err = this.verificarRuta(nuevo)
 		if verificar {
-			verificar, err = this.verificarRuta(nuevo)
-			if verificar {
-				if this.Inicio == nil {
-					this.Inicio = nuevo
-					this.Fin = nuevo
-				} else {
-					this.Fin.Next = nuevo
-					this.Fin = nuevo
-				}
-
-				return this.imprimirLista()
+			if this.Inicio == nil {
+				this.Inicio = nuevo
+				this.Fin = nuevo
+			} else {
+				this.Fin.Next = nuevo
+				this.Fin = nuevo
 			}
+
+			return this.imprimirLista()
 		}
 	}
-	return err
+
+	return err + "\n" + this.imprimirLista()
 }
 
 // Buscar Nodo en la lista
