@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-const backend = "http://ec2-18-217-55-249.us-east-2.compute.amazonaws.com:8080/"
+const backend = "http://ec2-3-142-201-48.us-east-2.compute.amazonaws.com:8080/"
 
 class Inicio extends Component {
   state = { raw: "", respuesta: "" };

@@ -329,6 +329,7 @@ func (this *Reporte) reporteSb() string {
 				return "No fue posible encontrar el Disco... Desmontando particion"
 			}
 		}
+		return "No fue posible encontrar una particion montada con el ID especificado"
 	}
 
 	return "Ingreso un valor erroneo en Path"
@@ -479,6 +480,7 @@ func (this *Reporte) reporteFile() string {
 				return "No fue posible encontrar el Disco... Desmontando particion"
 			}
 		}
+		return "No fue posible encontrar una particion montada con el ID especificado"
 	}
 	return "Ingreso valores invalidos en Path o Ruta"
 }
@@ -581,7 +583,7 @@ func (this *Reporte) reporteTree() string {
 					archivoReporte.Close()
 					_, err := exec.Command("dot", "-T"+GetExtension(n_reporte), "Reportes/DOTS/reporteTree.dot", "-o", "Reportes/"+nodo.IdCompleto+"_"+n_reporte).Output()
 					if err != nil {
-						res = "No fue posible completar la creacion del Reporte Tree"
+						res = "No fue posible completar la creacion del Reporte Tree\n"
 						res += err.Error()
 					} else {
 						res = "Reporte de Tree generado con Exito"
@@ -598,6 +600,8 @@ func (this *Reporte) reporteTree() string {
 				return "No fue posible encontrar el Disco... Desmontando particion"
 			}
 		}
+
+		return "No fue posible encontrar una particion montada con el ID especificado"
 	}
 	return "Ingreso un valor invalido en PATH"
 }
