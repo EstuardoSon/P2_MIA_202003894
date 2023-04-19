@@ -582,6 +582,7 @@ func (this *Reporte) reporteTree() string {
 					_, err := exec.Command("dot", "-T"+GetExtension(n_reporte), "Reportes/DOTS/reporteTree.dot", "-o", "Reportes/"+nodo.IdCompleto+"_"+n_reporte).Output()
 					if err != nil {
 						res = "No fue posible completar la creacion del Reporte Tree"
+						res += err.Error()
 					} else {
 						res = "Reporte de Tree generado con Exito"
 					}

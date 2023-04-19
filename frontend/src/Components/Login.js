@@ -13,7 +13,7 @@ class Login extends Component {
     console.log({ Id: this.state.id, Pass: this.state.pass, User:this.state.usuario})
     e.preventDefault()
     console.log(JSON.stringify({ Comando: this.state.raw}))
-    fetch(backend+"/Login", {
+    fetch(backend+"Login", {
       method: "POST",
       body: JSON.stringify({ Id: this.state.id, Pass: this.state.pass, User:this.state.usuario}),
       headers: { "Content-type": "application/json; charset=UTF-8" },
