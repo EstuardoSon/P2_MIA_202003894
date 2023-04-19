@@ -71,7 +71,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 				i := find(reporte.Name(), ".")
 				if i < len(reporte.Name()) {
 					if strings.Index(reporte.Name(), operacion.Id) != -1 {
-						ra = append(ra, Archivo{Uri: "http://localhost:8080/Reportes/" + reporte.Name()})
+						ra = append(ra, Archivo{Uri: "Reportes/" + reporte.Name()})
 					}
 				}
 

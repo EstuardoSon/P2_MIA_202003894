@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 
+const backend = "http://ec2-18-217-55-249.us-east-2.compute.amazonaws.com:8080/"
+
 class Inicio extends Component {
   state = { raw: "", respuesta: "" };
 
@@ -22,7 +24,7 @@ class Inicio extends Component {
   };
 
   enviarInfo = () => {
-    fetch("http://ip-172-31-3-196.us-east-2.compute.internal:8080/", {
+    fetch(backend, {
       method: "POST",
       body: JSON.stringify({ Comando: this.state.raw}),
       headers: { "Content-type": "application/json; charset=UTF-8" },

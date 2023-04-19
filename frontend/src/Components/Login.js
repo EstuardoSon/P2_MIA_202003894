@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 
+const backend = "http://ec2-18-217-55-249.us-east-2.compute.amazonaws.com:8080/"
+
 class Login extends Component {
   state = {
     id : "",
@@ -11,7 +13,7 @@ class Login extends Component {
     console.log({ Id: this.state.id, Pass: this.state.pass, User:this.state.usuario})
     e.preventDefault()
     console.log(JSON.stringify({ Comando: this.state.raw}))
-    fetch("http://ip-172-31-3-196.us-east-2.compute.internal:8080/Login", {
+    fetch(backend+"/Login", {
       method: "POST",
       body: JSON.stringify({ Id: this.state.id, Pass: this.state.pass, User:this.state.usuario}),
       headers: { "Content-type": "application/json; charset=UTF-8" },
@@ -24,7 +26,7 @@ class Login extends Component {
         let docs = []
         for (let a of res.Archivos){
             console.log(a.Uri)
-            docs.push({uri: a.Uri})
+            docs.push({uri: backend+a.Uri})
         }
 
         this.props.cambio(docs,res.Res)
