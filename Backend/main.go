@@ -107,6 +107,8 @@ func index(w http.ResponseWriter, r *http.Request) {
 			json.NewEncoder(w).Encode(res)
 		}
 		return
+	} else if r.Method == "GET" {
+		json.NewEncoder(w).Encode("Estuardo Gabriel Son Mux 202003894")
 	}
 }
 
