@@ -122,5 +122,6 @@ func main() {
 
 	server.PathPrefix("/Reportes/").Handler(http.StripPrefix("/Reportes/", http.FileServer(http.Dir("./Reportes/"))))
 
+	fmt.Println("Servidor Ejecutandose en el Puerto 8080")
 	http.ListenAndServe(":8080", handler)
 }

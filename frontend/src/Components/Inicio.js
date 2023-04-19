@@ -22,7 +22,7 @@ class Inicio extends Component {
   };
 
   enviarInfo = () => {
-    fetch("http://localhost:8080/", {
+    fetch("http://ip-172-31-3-196.us-east-2.compute.internal:8080/", {
       method: "POST",
       body: JSON.stringify({ Comando: this.state.raw}),
       headers: { "Content-type": "application/json; charset=UTF-8" },
