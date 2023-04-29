@@ -452,9 +452,9 @@ func (this *Reporte) reporteFile() string {
 					_, n_archivo := DivPath(this.Path)
 					archivoReporte, _ := os.OpenFile("./Reportes/"+nodo.IdCompleto+"_"+n_archivo, os.O_RDWR|os.O_CREATE, 0777)
 
-					ficheros := strings.Split(f_ruta[1:], "/")
+					ficheros := strings.Split(f_ruta, "/")
 					if n_ruta != "" {
-						ficheros = append(ficheros, n_ruta)
+						ficheros = append(ficheros[1:], n_ruta)
 					}
 
 					ubicacion := this.buscarFichero(&ficheros, &sb, inicioSB, int(BytetoI32(sb.S_inode_start[:])), archivoDisco)

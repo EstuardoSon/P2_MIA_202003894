@@ -73,7 +73,7 @@ func (this *GestorArchivos) Mkfile(path_fichero, path_archivo string, r bool, si
 
 			match, _ := regexp.MatchString("(\\/)(([a-zA-Z0-9_ñÑáéíóúÁÉÍÓÚ ]+(\\/))*[a-zA-Z0-9_ñÑáéíóúÁÉÍÓÚ ]+)?", path_fichero)
 			if match {
-				path_fichero = path_fichero[1:]
+				path_fichero = path_fichero[:]
 				ficheros := strings.Split(path_fichero, "/")
 
 				//Texto a escribir
@@ -105,7 +105,7 @@ func (this *GestorArchivos) Mkfile(path_fichero, path_archivo string, r bool, si
 				if bandera {
 					//Ejecutar
 					if len(textoArchivo) <= 1024 {
-						return this.buscarfichero(ficheros, path_archivo, r, &sb, inicioSB, int(BytetoI32(sb.S_inode_start[:])), archivo, textoArchivo)
+						return this.buscarfichero(ficheros[1:], path_archivo, r, &sb, inicioSB, int(BytetoI32(sb.S_inode_start[:])), archivo, textoArchivo)
 					} else {
 						return "El texto que desea ingresar excede el espacio disponible para un archivo"
 					}
@@ -620,12 +620,12 @@ func (this *GestorArchivos) Mkdir(path string, r bool) string {
 			res := ""
 			match, _ := regexp.MatchString("(\\/)(([a-zA-Z0-9_ñÑáéíóúÁÉÍÓÚ ]+(\\/))*[a-zA-Z0-9_ñÑáéíóúÁÉÍÓÚ ]+)?", path)
 			if match {
-				path = path[1:]
+				path = path[:]
 				ficheros := strings.Split(path, "/")
 				newCarpeta := ficheros[len(ficheros)-1]
 				ficheros = ficheros[:len(ficheros)-1]
 
-				res = this.buscarficheroMkdir(ficheros, newCarpeta, r, &sb, inicioSB, int(BytetoI32(sb.S_inode_start[:])), archivo)
+				res = this.buscarficheroMkdir(ficheros[1:], newCarpeta, r, &sb, inicioSB, int(BytetoI32(sb.S_inode_start[:])), archivo)
 			}
 
 			archivo.Close()
